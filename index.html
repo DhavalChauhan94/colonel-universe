@@ -1,0 +1,2694 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- SEO Meta Tags -->
+  <title>Colonel Universe — AI CFO Infrastructure for India's D2C Economy</title>
+  <meta name="description" content="Unified real-time financial data infrastructure, autonomous accounting agents, and strategic CFO services powered by n8n, FastAPI, and CA-augmented pipelines." />
+  <meta name="author" content="Colonel Universe" />
+  
+  <!-- Fonts Integration (Newsreader for editorial serif headlines, Inter for clean UI, JetBrains Mono for stats/logs) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600;1,6..72,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CDN with Forms and Container Queries -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            background: ({ opacityValue }) => {
+              if (opacityValue !== undefined) {
+                return `rgba(var(--background-color-rgb), ${opacityValue})`;
+              }
+              return `var(--background-color)`;
+            },
+            surface: ({ opacityValue }) => {
+              if (opacityValue !== undefined) {
+                return `rgba(var(--surface-color-rgb), ${opacityValue})`;
+              }
+              return `var(--surface-color)`;
+            },
+            cardBorder: 'var(--card-border)',
+            accentBlue: '#3b82f6',
+            electricBlue: '#2563EB',
+            successGreen: '#22c55e',
+            alertAmber: '#f59e0b',
+            textPrimary: ({ opacityValue }) => {
+              if (opacityValue !== undefined) {
+                return `rgba(var(--text-primary-rgb), ${opacityValue})`;
+              }
+              return `var(--text-primary)`;
+            },
+            textMuted: ({ opacityValue }) => {
+              if (opacityValue !== undefined) {
+                return `rgba(var(--text-primary-rgb), ${opacityValue * 0.75})`;
+              }
+              return `var(--text-muted)`;
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            grotesk: ['"Space Grotesk"', 'Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      /* Dark Theme variables (default) */
+      --background-color: #0d1117;
+      --background-color-rgb: 13, 17, 23;
+      --surface-color: #161b27;
+      --surface-color-rgb: 22, 27, 39;
+      --text-primary-rgb: 248, 250, 252;
+      --card-border: rgba(255, 255, 255, 0.07);
+      --text-primary: #f8fafc;
+      --text-muted: rgba(248, 250, 252, 0.75);
+      --border-color: rgba(255, 255, 255, 0.05);
+      --nav-bg: rgba(13, 17, 23, 0.8);
+      --ticker-bg: rgba(10, 14, 20, 0.4);
+      --radial-mesh: rgba(255, 255, 255, 0.012);
+      --glow-intensity: rgba(37, 99, 235, 0.04);
+      --theme-toggle-hover: rgba(255, 255, 255, 0.1);
+    }
+
+    html:not(.dark) {
+      /* Premium Light Theme variables */
+      --background-color: #f8fafc;
+      --background-color-rgb: 248, 250, 252;
+      --surface-color: #ffffff;
+      --surface-color-rgb: 255, 255, 255;
+      --text-primary-rgb: 15, 23, 42;
+      --card-border: rgba(0, 0, 0, 0.06);
+      --text-primary: #0f172a;
+      --text-muted: rgba(15, 23, 42, 0.75);
+      --border-color: rgba(0, 0, 0, 0.06);
+      --nav-bg: rgba(248, 250, 252, 0.85);
+      --ticker-bg: rgba(255, 255, 255, 0.6);
+      --radial-mesh: rgba(0, 0, 0, 0.03);
+      --glow-intensity: rgba(37, 99, 235, 0.02);
+      --theme-toggle-hover: rgba(0, 0, 0, 0.05);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    /* Explicit font-family helpers — override Tailwind CDN with !important */
+    .font-newsreader,
+    h1.font-serif, h2.font-serif, h3.font-serif, h4.font-serif,
+    .font-serif {
+      font-family: 'Newsreader', Georgia, serif !important;
+      font-optical-sizing: auto;
+    }
+    .font-grotesk, span.font-grotesk {
+      font-family: 'Space Grotesk', Inter, system-ui, sans-serif !important;
+    }
+    
+    /* Sleek background with high-end grid mesh and overlapping blur spots */
+    body {
+      background-color: var(--background-color);
+      background-image: radial-gradient(circle at 80% 20%, var(--glow-intensity) 0%, transparent 50%),
+                        radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.01) 0%, transparent 50%),
+                        linear-gradient(var(--radial-mesh) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--radial-mesh) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ═══ LIGHT THEME — GUARANTEED CONTRAST RULES ═══
+       Direct element selectors beat Tailwind's class utilities without needing !important tricks.
+       Elements inside .always-dark are excluded via :not() to preserve their premium dark look. */
+
+    /* Body baseline */
+    html:not(.dark) body {
+      color: #0f172a;
+    }
+
+    /* All headings outside always-dark must be dark */
+    html:not(.dark) h1:not(.always-dark h1),
+    html:not(.dark) h2:not(.always-dark h2),
+    html:not(.dark) h3:not(.always-dark h3),
+    html:not(.dark) h4:not(.always-dark h4),
+    html:not(.dark) h5:not(.always-dark h5) {
+      color: #0f172a !important;
+    }
+
+    /* Paragraph and list text outside always-dark */
+    html:not(.dark) p:not(.always-dark p),
+    html:not(.dark) li:not(.always-dark li) {
+      color: #334155 !important;
+    }
+
+    /* Any element explicitly given text-white outside always-dark */
+    html:not(.dark) .text-white:not(.always-dark .text-white),
+    html:not(.dark) [class*="text-white/"]:not(.always-dark [class*="text-white/"]) {
+      color: #0f172a !important;
+    }
+
+    /* Muted text */
+    html:not(.dark) .text-textMuted:not(.always-dark .text-textMuted) {
+      color: #64748b !important;
+    }
+
+    /* Borders */
+    html:not(.dark) [class*="border-white/"]:not(.always-dark [class*="border-white/"]) {
+      border-color: rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Transparent white backgrounds */
+    html:not(.dark) [class*="bg-white/"]:not(.always-dark [class*="bg-white/"]) {
+      background-color: rgba(0, 0, 0, 0.03) !important;
+    }
+
+    /* Explicitly make all headings, serifs, and grotesks pure white in dark mode/always-dark elements */
+    html.dark h1,
+    html.dark h2,
+    html.dark h3,
+    html.dark h4,
+    html.dark h5,
+    html.dark .font-serif,
+    html.dark .font-grotesk,
+    .always-dark h1,
+    .always-dark h2,
+    .always-dark h3,
+    .always-dark h4,
+    .always-dark h5,
+    .always-dark .font-serif,
+    .always-dark .font-grotesk {
+      color: #ffffff !important;
+    }
+
+    html.dark .text-white,
+    .always-dark .text-white {
+      color: #ffffff !important;
+    }
+
+    html.dark .text-textMuted,
+    .always-dark .text-textMuted {
+      color: var(--text-muted) !important;
+    }
+
+    /* Style override to lock dark mode values inside always-dark elements */
+    .always-dark {
+      --background-color: #0d1117;
+      --background-color-rgb: 13, 17, 23;
+      --surface-color: #161b27;
+      --surface-color-rgb: 22, 27, 39;
+      --text-primary-rgb: 248, 250, 252;
+      --card-border: rgba(255, 255, 255, 0.07);
+      --text-primary: #f8fafc;
+      --text-muted: rgba(248, 250, 252, 0.75);
+      --border-color: rgba(255, 255, 255, 0.05);
+      --nav-bg: rgba(13, 17, 23, 0.8);
+      --ticker-bg: rgba(10, 14, 20, 0.4);
+      --radial-mesh: rgba(255, 255, 255, 0.012);
+      --glow-intensity: rgba(37, 99, 235, 0.04);
+      --theme-toggle-hover: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Custom thin scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #21262d;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #30363d;
+    }
+
+    /* 3D Perspective Card Tilt on Hover */
+    .cw {
+      perspective: 1200px;
+      perspective-origin: 50% 50%;
+    }
+    .c3d {
+      transform: rotateY(-6deg) rotateX(3deg);
+      transform-origin: center right;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+    .cw:hover .c3d {
+      transform: rotateY(-2deg) rotateX(1deg);
+    }
+    
+    /* SVG Connector Line Flows */
+    .svline {
+      stroke: rgba(255, 255, 255, 0.05);
+      stroke-width: 1;
+    }
+    .svflow {
+      stroke: rgba(59, 130, 246, 0.35);
+      stroke-width: 1.2;
+      stroke-dasharray: 6 6;
+      fill: none;
+      animation: dashf 1.6s linear infinite;
+    }
+    .svflow2 {
+      animation-delay: -0.5s;
+    }
+    .svflow3 {
+      animation-delay: -1s;
+    }
+    @keyframes dashf {
+      0% {
+        stroke-dashoffset: 24;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Infinite Marquee Ticker */
+    .ticker-w {
+      overflow: hidden;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(10, 14, 20, 0.4);
+    }
+    .ticker-i {
+      display: flex;
+      white-space: nowrap;
+      animation: tick 35s linear infinite;
+    }
+    @keyframes tick {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Scroll Reveals */
+    .fade {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fade.on {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* SVG Sparkline draw */
+    .ch-path {
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+      transition: stroke-dashoffset 2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ch-path.drawn {
+      stroke-dashoffset: 0;
+    }
+    
+    /* Live log smooth transitions */
+    .log-e {
+      transition: all 0.4s ease;
+      animation: slide-in 0.4s ease-out;
+    }
+    @keyframes slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-slide-in {
+      animation: slide-in 0.4s ease-out forwards;
+    }
+
+    /* Responsive Scale for Hero Terminal */
+    .hero-terminal-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      overflow: hidden !important;
+      height: auto;
+    }
+    
+    @media (min-width: 1024px) {
+      .hero-terminal-wrapper {
+        height: auto;
+        overflow: visible !important;
+      }
+    }
+    @media (max-width: 1023px) {
+      .hero-terminal-wrapper {
+        height: 380px;
+      }
+      .hero-terminal-wrapper .cw {
+        transform: scale(0.85);
+        transform-origin: center center;
+        flex-shrink: 0;
+      }
+    }
+    @media (max-width: 768px) {
+      .hero-terminal-wrapper {
+        height: 320px;
+      }
+      .hero-terminal-wrapper .cw {
+        transform: scale(0.72);
+      }
+    }
+    @media (max-width: 640px) {
+      .hero-terminal-wrapper {
+        height: 270px;
+      }
+      .hero-terminal-wrapper .cw {
+        transform: scale(0.58);
+      }
+    }
+    @media (max-width: 480px) {
+      .hero-terminal-wrapper {
+        height: 215px;
+      }
+      .hero-terminal-wrapper .cw {
+        transform: scale(0.46);
+      }
+    }
+    @media (max-width: 380px) {
+      .hero-terminal-wrapper {
+        height: 180px;
+      }
+      .hero-terminal-wrapper .cw {
+        transform: scale(0.39);
+      }
+    }
+
+    /* Responsive Scale for Pipeline Showcase Canvas */
+    .pipeline-canvas-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      overflow: hidden !important;
+      height: auto;
+    }
+    
+    @media (min-width: 1024px) {
+      .pipeline-canvas-wrapper {
+        height: auto;
+        overflow: visible !important;
+      }
+    }
+    @media (max-width: 1023px) {
+      .pipeline-canvas-wrapper {
+        height: 390px;
+      }
+      .pipeline-canvas-wrapper .showcase-canvas {
+        transform: scale(0.85);
+        transform-origin: center center;
+        flex-shrink: 0;
+      }
+    }
+    @media (max-width: 768px) {
+      .pipeline-canvas-wrapper {
+        height: 330px;
+      }
+      .pipeline-canvas-wrapper .showcase-canvas {
+        transform: scale(0.72);
+      }
+    }
+    @media (max-width: 640px) {
+      .pipeline-canvas-wrapper {
+        height: 290px;
+      }
+      .pipeline-canvas-wrapper .showcase-canvas {
+        transform: scale(0.6);
+      }
+    }
+    @media (max-width: 480px) {
+      .pipeline-canvas-wrapper {
+        height: 225px;
+      }
+      .pipeline-canvas-wrapper .showcase-canvas {
+        transform: scale(0.46);
+      }
+    }
+    @media (max-width: 380px) {
+      .pipeline-canvas-wrapper {
+        height: 190px;
+      }
+      .pipeline-canvas-wrapper .showcase-canvas {
+        transform: scale(0.39);
+      }
+    }
+
+    /* Mobile Nav Overlay Slide Animation */
+    #mobile-nav-overlay {
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+    }
+    #mobile-nav-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    #mobile-nav-overlay .drawer-content {
+      transform: translateY(-20px);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #mobile-nav-overlay.active .drawer-content {
+      transform: translateY(0);
+    }
+
+    /* ═══ NAV SUBWAY BRAND LOGO SEAMLESS LOOP ═══ */
+    .animate-brand-train-1 {
+      animation: brandTrainOne 6s linear infinite;
+    }
+    .animate-brand-train-2 {
+      animation: brandTrainTwo 6s linear infinite;
+    }
+    .group:hover .animate-brand-train-1 {
+      animation-duration: 2.5s;
+      filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.8));
+    }
+    .group:hover .animate-brand-train-2 {
+      animation-duration: 2.5s;
+      filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.8));
+    }
+    @keyframes brandTrainOne {
+      0% {
+        transform: translateX(-60px);
+      }
+      100% {
+        transform: translateX(40px);
+      }
+    }
+    @keyframes brandTrainTwo {
+      0% {
+        transform: translateX(-160px);
+      }
+      100% {
+        transform: translateX(-60px);
+      }
+    }
+
+    /* ═══ CFO TRANSACTION PIPELINE MARQUEE LOOP ═══ */
+    @keyframes trackMarquee {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+    .animate-track-marquee {
+      animation: trackMarquee 12s linear infinite;
+    }
+    .group\/track:hover .animate-track-marquee {
+      animation-play-state: paused;
+    }
+
+    /* ═══ RAILWAY TIMELINE SLIDING TRACK & PUCK ═══ */
+    .train-dot {
+      transition: background-color 0.5s ease;
+    }
+    
+    /* ═══ CASCADING NODE ENTRY & FLOAT ANIMATIONS ═══ */
+    @keyframes float-y {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .animate-float-1 { animation: float-y 3s ease-in-out infinite; }
+    .animate-float-2 { animation: float-y 3.5s ease-in-out infinite; }
+    .animate-float-3 { animation: float-y 4s ease-in-out infinite; }
+    .animate-float-4 { animation: float-y 4.5s ease-in-out infinite; }
+    
+    @keyframes slide-in-left {
+      from { opacity: 0; transform: translateX(-12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .slide-node {
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cstep-active .slide-node {
+      opacity: 1;
+    }
+    .cstep-active .slide-node-1 { animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .cstep-active .slide-node-2 { animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards; }
+    .cstep-active .slide-node-3 { animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; }
+    .cstep-active .slide-node-4 { animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards; }
+
+    /* ═══ SLIDE 2: 3D OVERLAPPING ENVIRONMENT DECK ═══ */
+    .deck-container {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      margin: 0 auto;
+      perspective: 1200px;
+    }
+    .deck-card {
+      position: absolute;
+      width: 220px;
+      height: 110px;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+    .deck-card-prod {
+      transform: translate3d(0, 0, 20px) rotate(-1.5deg);
+      z-index: 30;
+    }
+    .deck-card-staging {
+      transform: translate3d(14px, 36px, 10px) rotate(1deg);
+      z-index: 20;
+    }
+    .deck-card-dev {
+      transform: translate3d(28px, 72px, 0px) rotate(3deg);
+      z-index: 10;
+    }
+    .deck-container:hover .deck-card-prod {
+      transform: translate3d(-15px, -15px, 40px) rotate(-3.5deg) scale(1.02);
+    }
+    .deck-container:hover .deck-card-staging {
+      transform: translate3d(18px, 32px, 25px) rotate(1deg) scale(1.02);
+    }
+    .deck-container:hover .deck-card-dev {
+      transform: translate3d(50px, 80px, 10px) rotate(5deg) scale(1.02);
+    }
+
+    /* ═══ SLIDE 3: 3D ISOMETRIC COMPLIANCE STACK ═══ */
+    .iso-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
+      perspective: 1200px;
+    }
+    .iso-stack {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 250px;
+      height: 180px;
+      transform: rotateX(24deg) rotateY(-12deg) rotateZ(4deg);
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .iso-layer {
+      position: absolute;
+      inset: 0;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+    }
+    .iso-layer-bottom {
+      transform: translateZ(-35px);
+      z-index: 10;
+    }
+    .iso-layer-middle {
+      transform: translateZ(15px);
+      z-index: 20;
+    }
+    .iso-layer-top {
+      transform: translateZ(65px);
+      z-index: 30;
+    }
+    .iso-container:hover .iso-layer-bottom {
+      transform: translateZ(-65px) scale(0.95);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+    .iso-container:hover .iso-layer-middle {
+      transform: translateZ(25px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+    }
+    .iso-container:hover .iso-layer-top {
+      transform: translateZ(115px) scale(1.04);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Fix low-contrast washed-out white-on-white card surfaces in light theme */
+    html:not(.dark) .bg-surface\/20:not(.always-dark, .always-dark *),
+    html:not(.dark) .bg-surface\/30:not(.always-dark, .always-dark *),
+    html:not(.dark) .bg-surface\/40:not(.always-dark, .always-dark *),
+    html:not(.dark) .bg-surface\/80:not(.always-dark, .always-dark *) {
+      background-color: var(--surface-color) !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.02) !important;
+    }
+
+    /* Fix primary button contrast in light mode to turn white CTAs into high-contrast dark buttons */
+    html:not(.dark) .bg-white:not(.always-dark, .always-dark *) {
+      background-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+    html:not(.dark) .bg-white:not(.always-dark, .always-dark *):hover {
+      background-color: #1e293b !important;
+    }
+
+    /* Unpixelated Fluid Stacked Mobile Layout for Showcase Canvas */
+    @media (max-width: 767px) {
+      /* Reset scale-down logic on showcase canvas */
+      .pipeline-canvas-wrapper {
+        height: auto !important;
+        overflow: visible !important;
+      }
+      .pipeline-canvas-wrapper .showcase-canvas {
+        transform: none !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: unset !important;
+        padding: 16px !important;
+      }
+      
+      /* Slide 1 - Connecting Step responsive layout */
+      #cstep-connecting .relative.flex-1 {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 16px !important;
+        min-height: unset !important;
+        margin: 12px 0 !important;
+      }
+      #cstep-connecting .relative.flex-1 > div:first-child {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin-top: 8px !important;
+      }
+      #cstep-connecting .relative.flex-1 > div:first-child > .slide-node {
+        width: 100% !important;
+        margin: 0 !important;
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      #cstep-connecting .relative.flex-1 > div.absolute {
+        position: relative !important;
+        left: unset !important;
+        top: unset !important;
+        transform: none !important;
+        margin: 16px 0 !important;
+      }
+      #cstep-connecting .relative.flex-1 > div.w-\[180px\] {
+        width: 100% !important;
+        margin: 0 !important;
+      }
+      #cstep-connecting .relative.flex-1 svg.absolute {
+        display: none !important;
+      }
+      
+      /* Slide 2 - Interworking Step responsive layout */
+      #cstep-interworking .grid-cols-1.md\:grid-cols-2 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+      }
+      #cstep-interworking .deck-container {
+        width: 100% !important;
+        height: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin: 0 !important;
+        perspective: none !important;
+      }
+      #cstep-interworking .deck-card {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        transform: none !important;
+        top: unset !important;
+        left: unset !important;
+        z-index: 10 !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+      }
+      #cstep-interworking .bg-background\/90.h-\[240px\] {
+        height: 200px !important;
+        width: 100% !important;
+      }
+      #cstep-interworking #typewriter-log-content {
+        min-height: 120px !important;
+        max-height: 120px !important;
+      }
+      
+      /* Slide 3 - Actioning Step responsive layout */
+      #cstep-actioning .relative.flex-1 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        min-height: unset !important;
+        margin: 12px 0 !important;
+      }
+      #cstep-actioning .h-\[240px\] {
+        height: 200px !important;
+        width: 100% !important;
+      }
+      #cstep-actioning .iso-container {
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        perspective: none !important;
+      }
+      #cstep-actioning .iso-stack {
+        position: relative !important;
+        top: unset !important;
+        left: unset !important;
+        width: 100% !important;
+        height: auto !important;
+        transform: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        transform-style: flat !important;
+      }
+      #cstep-actioning .iso-layer {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        transform: none !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+      }
+      #cstep-actioning .iso-container:hover .iso-layer-bottom,
+      #cstep-actioning .iso-container:hover .iso-layer-middle,
+      #cstep-actioning .iso-container:hover .iso-layer-top {
+        transform: none !important;
+      }
+    }
+  </style>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'light' || (!savedTheme && !prefersDark)) {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+</head>
+<body class="antialiased">
+
+  <!-- Shared Global SVG Defs -->
+  <svg class="hidden" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <g id="brand-subway-train">
+        <!-- Compartment 1 -->
+        <rect x="0" y="14" width="16" height="12" rx="3" fill="currentColor" />
+        <rect x="3" y="17" width="4" height="4" rx="0.5" fill="#ffffff" opacity="0.6" />
+        <rect x="9" y="17" width="4" height="4" rx="0.5" fill="#ffffff" opacity="0.6" />
+        <!-- Connector -->
+        <rect x="16" y="19" width="4" height="2" fill="currentColor" opacity="0.5" />
+        <!-- Compartment 2 -->
+        <rect x="20" y="14" width="16" height="12" rx="3" fill="currentColor" />
+        <rect x="23" y="17" width="4" height="4" rx="0.5" fill="#ffffff" opacity="0.6" />
+        <rect x="29" y="17" width="4" height="4" rx="0.5" fill="#ffffff" opacity="0.6" />
+        <!-- Connector -->
+        <rect x="36" y="19" width="4" height="2" fill="currentColor" opacity="0.5" />
+        <!-- Locomotive Front -->
+        <rect x="40" y="14" width="20" height="12" rx="3" fill="currentColor" />
+        <rect x="52" y="17" width="5" height="6" rx="1" fill="#ffffff" opacity="0.9" />
+      </g>
+      <clipPath id="brand-logo-clip">
+        <rect x="2" y="2" width="96" height="36" rx="6" />
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- ═══ MOBILE MENU OVERLAY ═══ -->
+  <div id="mobile-nav-overlay" class="fixed inset-0 z-50 bg-[#0d1117]/95 backdrop-blur-2xl flex flex-col justify-between p-6 md:hidden">
+    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+      <a href="#" onclick="toggleMobileMenu()" class="flex items-center gap-3 group">
+        <!-- SVG Subway Train Brand Logo Capsule -->
+        <div class="relative w-16 h-8 overflow-hidden rounded-md border border-white/10 bg-white/5 flex items-center justify-center always-dark">
+          <svg class="w-full h-full" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#brand-logo-clip)">
+              <!-- Track -->
+              <line x1="0" y1="26" x2="100" y2="26" class="stroke-slate-700 dark:stroke-slate-800" stroke-width="1.5" stroke-dasharray="3 3" />
+              <!-- Train 1 -->
+              <use href="#brand-subway-train" id="brandTrainOneMobile" class="text-accentBlue animate-brand-train-1" />
+              <!-- Train 2 -->
+              <use href="#brand-subway-train" id="brandTrainTwoMobile" class="text-accentBlue animate-brand-train-2" />
+            </g>
+          </svg>
+        </div>
+        <span class="font-grotesk text-lg font-bold text-white">Colonel Universe</span>
+      </a>
+      <button onclick="toggleMobileMenu()" class="w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 text-textMuted hover:text-white" aria-label="Close Mobile Menu">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="drawer-content flex-1 flex flex-col justify-center gap-8 font-mono text-sm tracking-widest uppercase text-center my-12">
+      <a href="#problem" onclick="toggleMobileMenu()" class="hover:text-white transition-colors py-2 text-textMuted">Problem</a>
+      <a href="#platform" onclick="toggleMobileMenu()" class="hover:text-white transition-colors py-2 text-textMuted">Platform</a>
+      <a href="#traction" onclick="toggleMobileMenu()" class="hover:text-white transition-colors py-2 text-textMuted">Traction</a>
+      <a href="#team" onclick="toggleMobileMenu()" class="hover:text-white transition-colors py-2 text-textMuted">Team</a>
+    </div>
+    
+    <div class="border-t border-white/5 pt-6 flex flex-col gap-4">
+      <a href="mailto:hello@colonel.finance" class="block text-center font-mono text-[11px] font-semibold text-[#0d1117] bg-white hover:bg-neutral-100 py-3.5 rounded-xl transition-all">
+        Request Technical Demo
+      </a>
+      <div class="font-mono text-[9px] text-textMuted/40 text-center uppercase tracking-wider">
+        Confidential · Google for Startups 2026 Application
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GLASS NAV BAR ═══ -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 transition-all">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <!-- SVG Subway Train Brand Logo Capsule -->
+        <div class="relative w-16 h-8 overflow-hidden rounded-md border border-white/10 bg-white/5 flex items-center justify-center always-dark">
+          <svg class="w-full h-full" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#brand-logo-clip)">
+              <!-- Track -->
+              <line x1="0" y1="26" x2="100" y2="26" class="stroke-slate-700 dark:stroke-slate-800" stroke-width="1.5" stroke-dasharray="3 3" />
+              <!-- Train 1 -->
+              <use href="#brand-subway-train" id="brandTrainOne" class="text-accentBlue animate-brand-train-1" />
+              <!-- Train 2 -->
+              <use href="#brand-subway-train" id="brandTrainTwo" class="text-accentBlue animate-brand-train-2" />
+            </g>
+          </svg>
+        </div>
+        <span class="font-grotesk text-lg md:text-xl font-bold tracking-tight text-white group-hover:text-accentBlue transition-colors">Colonel Universe</span>
+        <span class="hidden sm:inline-block font-mono text-[9px] bg-accentBlue/10 text-accentBlue px-2 py-0.5 rounded border border-accentBlue/25 tracking-widest uppercase">CFO INFRA</span>
+      </a>
+      
+      <div class="hidden md:flex items-center gap-8 font-mono text-[10px] tracking-widest uppercase text-textMuted">
+        <a href="#problem" class="hover:text-white transition-colors">Problem</a>
+        <a href="#platform" class="hover:text-white transition-colors">Platform</a>
+        <a href="#traction" class="hover:text-white transition-colors">Traction</a>
+        <a href="#team" class="hover:text-white transition-colors">Team</a>
+      </div>
+      
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" onclick="toggleTheme()" class="w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-textMuted hover:text-white transition-all active:scale-95" aria-label="Toggle Theme">
+          <!-- Sun Icon (visible in light mode) -->
+          <svg id="sun-icon" class="w-4 h-4 hidden text-[#fbbf24]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21M4.978 4.978l1.591 1.591m10.862 10.862l1.591 1.591M3 12h2.25m13.5 0H21m-16.022 6.022l1.591-1.591m10.862-10.862l1.591-1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z"/>
+          </svg>
+          <!-- Moon Icon (visible in dark mode) -->
+          <svg id="moon-icon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 12.83A9.5 9.5 0 0112 12c0-5.25 4.2-9.5 9.5-9.5a.75.75 0 01.75.83 8 8 0 0011 11.25.75.75 0 01.03-.02z"/>
+          </svg>
+        </button>
+
+        <a href="mailto:hello@colonel.finance" class="font-mono text-[10px] sm:text-[11px] font-semibold text-white bg-white/5 hover:bg-white/10 px-3 py-2 sm:px-5 sm:py-2.5 rounded-lg border border-white/10 transition-all active:scale-95 shrink-0">
+          <span class="hidden sm:inline">Request Technical </span>Demo
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobile-menu-toggle" onclick="toggleMobileMenu()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-textMuted hover:text-white transition-all active:scale-95" aria-label="Toggle Mobile Menu">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ PAGE WRAPPER TO PREVENT HORIZONTAL SCROLL ═══ -->
+  <div class="w-full overflow-x-hidden relative">
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <section class="min-h-screen pt-24 pb-16 flex items-center relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- LEFT COLUMN -->
+      <div class="lg:col-span-5 flex flex-col justify-center z-10">
+        <!-- Live status chips -->
+        <div class="flex items-center flex-wrap gap-2.5 mb-8">
+          <div class="inline-flex items-center gap-2 bg-successGreen/10 border border-successGreen/25 rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-successGreen">
+            <span class="w-1.5 h-1.5 rounded-full bg-successGreen animate-pulse"></span>
+            84 agents live
+          </div>
+          <div class="inline-flex items-center bg-white/5 border border-white/10 rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-textMuted">
+            SOC 2
+          </div>
+          <div class="inline-flex items-center bg-accentBlue/10 border border-accentBlue/20 rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-accentBlue">
+            agent.accountant
+          </div>
+        </div>
+        
+        <!-- Headline in beautiful Newsreader editorial style -->
+        <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.08] tracking-tight text-white mb-6">
+          Real-time CFO infrastructure for India's <span class="italic text-accentBlue">D2C economy.</span>
+        </h1>
+        
+        <p class="text-sm sm:text-base text-textMuted leading-relaxed max-w-lg mb-8">
+          84 autonomous AI agents reconcile every single rupee across 40+ Indian marketplaces in real-time. Senior CAs orchestrate custom compliance strategy. One unified financial engine engineered specifically for high-velocity brands.
+        </p>
+        
+        <!-- Call to actions -->
+        <div class="flex flex-wrap gap-4 mb-12">
+          <a href="#platform" class="inline-flex items-center justify-center font-mono text-[11px] font-bold text-[#0d1117] bg-white hover:bg-neutral-100 px-6 py-3.5 rounded-lg transition-all transform hover:-translate-y-0.5">
+            See the Platform
+          </a>
+          <a href="#traction" class="inline-flex items-center justify-center font-mono text-[11px] font-semibold text-white border border-white/15 hover:border-white/30 px-6 py-3.5 rounded-lg transition-all transform hover:-translate-y-0.5">
+            View Traction →
+          </a>
+        </div>
+        
+        <!-- High density data metrics -->
+        <div class="border-t border-white/5 pt-8 grid grid-cols-3 gap-4">
+          <div>
+            <div class="font-mono text-2xl lg:text-3xl font-bold text-white tracking-tight" data-count="15" data-suffix="+">15+</div>
+            <div class="font-mono text-[9px] text-textMuted uppercase tracking-wider mt-1">Venture-backed & Shark Tank Brands</div>
+          </div>
+          <div>
+            <div class="font-mono text-2xl lg:text-3xl font-bold text-white tracking-tight" data-count="40" data-prefix="$" data-suffix="Mn+">$40Mn+</div>
+            <div class="font-mono text-[9px] text-textMuted uppercase tracking-wider mt-1">Revenue Managed</div>
+          </div>
+          <div>
+            <div class="font-mono text-2xl lg:text-3xl font-bold text-white tracking-tight" data-count="24" data-prefix="$" data-suffix="Mn+">$24Mn+</div>
+            <div class="font-mono text-[9px] text-textMuted uppercase tracking-wider mt-1">Cap transacted</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN: 3D PERSPECTIVE TERMINAL CANVAS -->
+      <div class="lg:col-span-7 flex justify-center lg:justify-end overflow-hidden lg:overflow-visible w-full">
+        <div class="hero-terminal-wrapper w-full overflow-hidden lg:overflow-visible">
+          <div class="cw w-[590px] flex-shrink-0">
+            <div class="c3d shadow-[0_32px_80px_rgba(0,0,0,0.6)]">
+              <div class="relative w-full h-[400px] bg-background border border-white/10 rounded-2xl overflow-hidden always-dark">
+              
+              <!-- Radial Grid Overlay -->
+              <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.02)_1.2px,transparent_1.2px)] bg-[size:18px_18px] pointer-events-none"></div>
+              
+              <!-- Terminal Header Bar -->
+              <div class="absolute top-0 left-0 right-0 h-11 bg-background/90 backdrop-blur border-b border-white/5 flex items-center px-4 gap-2 z-20">
+                <div class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></div>
+                <span class="font-mono text-[10px] text-textMuted ml-3">agent.accountant / clusters</span>
+                
+                <div class="ml-auto flex items-center gap-4 text-[9px] font-mono text-textMuted">
+                  <span class="text-accentBlue">Architecture</span>
+                  <span>Logs</span>
+                </div>
+              </div>
+              
+              <!-- Terminal Interactive Zoom Controls -->
+              <div class="absolute left-4 top-16 z-20 flex flex-col gap-1">
+                <button class="w-6 h-6 bg-surface border border-white/5 hover:border-white/15 rounded flex items-center justify-center font-mono text-[10px] text-textMuted select-none hover:text-white transition-all">+</button>
+                <button class="w-6 h-6 bg-surface border border-white/5 hover:border-white/15 rounded flex items-center justify-center font-mono text-[10px] text-textMuted select-none hover:text-white transition-all">−</button>
+              </div>
+              
+              <!-- Node Column Monospace Labels -->
+              <div class="absolute top-14 left-[46px] font-mono text-[9px] font-semibold text-textMuted/50 tracking-wider uppercase">Data Sources</div>
+              <div class="absolute top-14 left-[228px] font-mono text-[9px] font-semibold text-textMuted/50 tracking-wider uppercase">Core Engine</div>
+              <div class="absolute top-14 left-[416px] font-mono text-[9px] font-semibold text-textMuted/50 tracking-wider uppercase">Active Agents</div>
+              
+              <!-- SVG connector paths with flowing particles -->
+              <!-- Target dimensions: width=590, height=358 (from y=42 topbar)
+                   Source Nodes (left=46, width=132): center coordinates (178, y)
+                   Engine Nodes (left=228, width=150): center input points (228, y)
+                   Agent Nodes (left=416, width=155): center input points (416, y)
+              -->
+              <svg width="590" height="358" class="absolute top-11 left-0 z-10 pointer-events-none" viewBox="0 0 590 358">
+                <!-- Data Source to Core Engine connection backbone trunk -->
+                <line x1="190" y1="47" x2="190" y2="311" class="svline"></line>
+                <line x1="178" y1="47" x2="190" y2="47" class="svline"></line>
+                <line x1="178" y1="113" x2="190" y2="113" class="svline"></line>
+                <line x1="178" y1="179" x2="190" y2="179" class="svline"></line>
+                <line x1="178" y1="245" x2="190" y2="245" class="svline"></line>
+                <line x1="178" y1="311" x2="190" y2="311" class="svline"></line>
+                
+                <!-- Active flow from trunk to Core engines -->
+                <path d="M 190 109 H 228" class="svflow"></path>
+                <path d="M 190 241 H 228" class="svflow svflow2"></path>
+                
+                <!-- Core Engine outputs to Agent backbone trunk -->
+                <line x1="378" y1="109" x2="396" y2="109" class="svline"></line>
+                <line x1="378" y1="241" x2="396" y2="241" class="svline"></line>
+                <line x1="396" y1="29" x2="396" y2="329" class="svline"></line>
+                
+                <!-- Flows from agent backbone trunk to individual agents -->
+                <path d="M 396 29 H 416" class="svflow"></path>
+                <path d="M 396 89 H 416" class="svflow svflow2"></path>
+                <path d="M 396 149 H 416" class="svflow svflow3"></path>
+                <path d="M 396 209 H 416" class="svflow"></path>
+                <path d="M 396 269 H 416" class="svflow svflow2"></path>
+                <path d="M 396 329 H 416" class="svflow svflow3"></path>
+              </svg>
+              
+              <!-- ── SOURCE NODES ── -->
+              <div class="absolute left-[46px] top-[63px] w-[132px] h-[52px] bg-surface/95 border border-white/10 rounded-lg p-2.5 flex items-center gap-3 z-20 hover:border-accentBlue/30 hover:shadow-[0_0_12px_rgba(59,130,246,0.1)] transition-all">
+                <div class="w-5 h-5 rounded bg-[#f97316] flex-shrink-0 flex items-center justify-center font-mono text-[10px] font-bold text-white">A</div>
+                <div class="overflow-hidden">
+                  <div class="font-mono text-[10px] font-bold text-white truncate leading-tight">Amazon</div>
+                  <div class="font-mono text-[8px] text-textMuted truncate mt-0.5">Seller Central</div>
+                </div>
+              </div>
+              <div class="absolute left-[46px] top-[129px] w-[132px] h-[52px] bg-surface/95 border border-white/10 rounded-lg p-2.5 flex items-center gap-3 z-20 hover:border-accentBlue/30 hover:shadow-[0_0_12px_rgba(59,130,246,0.1)] transition-all">
+                <div class="w-5 h-5 rounded bg-[#96bf48] flex-shrink-0 flex items-center justify-center font-mono text-[10px] font-bold text-white">S</div>
+                <div class="overflow-hidden">
+                  <div class="font-mono text-[10px] font-bold text-white truncate leading-tight">Shopify</div>
+                  <div class="font-mono text-[8px] text-textMuted truncate mt-0.5">Orders + Pay</div>
+                </div>
+              </div>
+              <div class="absolute left-[46px] top-[195px] w-[132px] h-[52px] bg-surface/95 border border-white/10 rounded-lg p-2.5 flex items-center gap-3 z-20 hover:border-accentBlue/30 hover:shadow-[0_0_12px_rgba(59,130,246,0.1)] transition-all">
+                <div class="w-5 h-5 rounded bg-[#2563eb] flex-shrink-0 flex items-center justify-center font-mono text-[10px] font-bold text-white">R</div>
+                <div class="overflow-hidden">
+                  <div class="font-mono text-[10px] font-bold text-white truncate leading-tight">Razorpay</div>
+                  <div class="font-mono text-[8px] text-textMuted truncate mt-0.5">Settlements</div>
+                </div>
+              </div>
+              <div class="absolute left-[46px] top-[261px] w-[132px] h-[52px] bg-surface/95 border border-white/10 rounded-lg p-2.5 flex items-center gap-3 z-20 hover:border-accentBlue/30 hover:shadow-[0_0_12px_rgba(59,130,246,0.1)] transition-all">
+                <div class="w-5 h-5 rounded bg-[#fbbf24] flex-shrink-0 flex items-center justify-center font-mono text-[10px] font-bold text-white">F</div>
+                <div class="overflow-hidden">
+                  <div class="font-mono text-[10px] font-bold text-white truncate leading-tight">Flipkart</div>
+                  <div class="font-mono text-[8px] text-textMuted truncate mt-0.5">MTR Ingest</div>
+                </div>
+              </div>
+              <div class="absolute left-[46px] top-[327px] w-[132px] h-[52px] bg-surface/95 border border-white/10 rounded-lg p-2.5 flex items-center gap-3 z-20 hover:border-accentBlue/30 hover:shadow-[0_0_12px_rgba(59,130,246,0.1)] transition-all">
+                <div class="w-5 h-5 rounded bg-[#8b5cf6] flex-shrink-0 flex items-center justify-center font-mono text-[10px] font-bold text-white">T</div>
+                <div class="overflow-hidden">
+                  <div class="font-mono text-[10px] font-bold text-white truncate leading-tight">Tally ERP</div>
+                  <div class="font-mono text-[8px] text-textMuted truncate mt-0.5">GL Ledger</div>
+                </div>
+              </div>
+
+              <!-- ── CORE ENGINE NODES ── -->
+              <div class="absolute left-[228px] top-[120px] w-[150px] h-[62px] bg-surface border border-accentBlue/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] rounded-lg p-2.5 z-20">
+                <div class="font-mono text-[10.5px] font-bold text-white leading-tight">Workflow Engine</div>
+                <div class="font-mono text-[7.5px] text-[#93c5fd]/50 mt-1">Webhooks · Schedulers</div>
+                <div class="flex items-center gap-1.5 mt-2 text-[8px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span>
+                  40 workflows active
+                </div>
+              </div>
+              <div class="absolute left-[228px] top-[252px] w-[150px] h-[62px] bg-surface border border-accentBlue/30 shadow-[0_0_15px_rgba(59,130,246,0.1)] rounded-lg p-2.5 z-20">
+                <div class="font-mono text-[10.5px] font-bold text-white leading-tight">FastAPI Gateway</div>
+                <div class="font-mono text-[7.5px] text-[#93c5fd]/50 mt-1">LangGraph · Claude AI</div>
+                <div class="flex items-center gap-1.5 mt-2 text-[8px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span>
+                  Pydantic validations
+                </div>
+              </div>
+
+              <!-- ── ACTIVE AGENTS ── -->
+              <div class="absolute left-[416px] top-[46px] w-[155px] h-[50px] bg-surface/95 border border-white/10 rounded-lg p-2.5 z-20 hover:border-accentBlue/30 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] font-bold text-white">Amzn Settlement</span>
+                  <span class="font-mono text-[9px] font-bold text-successGreen">99.8%</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 text-[7.5px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-successGreen"></span> RECONCILIATION
+                </div>
+              </div>
+              
+              <div class="absolute left-[416px] top-[106px] w-[155px] h-[50px] bg-surface/95 border border-white/10 rounded-lg p-2.5 z-20 hover:border-accentBlue/30 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] font-bold text-white">GSTR-1 Data Prep</span>
+                  <span class="font-mono text-[9px] font-bold text-successGreen">100%</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 text-[7.5px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-successGreen"></span> GST & TAX
+                </div>
+              </div>
+
+              <div class="absolute left-[416px] top-[166px] w-[155px] h-[50px] bg-surface/95 border border-white/10 rounded-lg p-2.5 z-20 hover:border-accentBlue/30 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] font-bold text-white">Shopify Payouts</span>
+                  <span class="font-mono text-[9px] font-bold text-successGreen">99.1%</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 text-[7.5px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-successGreen"></span> PAYOUTS
+                </div>
+              </div>
+
+              <div class="absolute left-[416px] top-[226px] w-[155px] h-[50px] bg-surface/95 border border-white/10 rounded-lg p-2.5 z-20 hover:border-accentBlue/30 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] font-bold text-white">Vendor AP Ledger</span>
+                  <span class="font-mono text-[9px] font-bold text-successGreen">98.4%</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 text-[7.5px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-successGreen"></span> AP / AR
+                </div>
+              </div>
+
+              <div class="absolute left-[416px] top-[286px] w-[155px] h-[50px] bg-surface/95 border border-white/10 rounded-lg p-2.5 z-20 hover:border-alertAmber/30 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] font-bold text-white">Razorpay Fee Val.</span>
+                  <span class="font-mono text-[9px] font-bold text-alertAmber">92.5%</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 text-[7.5px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-alertAmber animate-pulse"></span> EXCEPTION Triage
+                </div>
+              </div>
+
+              <div class="absolute left-[416px] top-[346px] w-[155px] h-[50px] bg-surface/95 border border-white/10 rounded-lg p-2.5 z-20 hover:border-accentBlue/30 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono text-[10px] font-bold text-white">Warehouse GRN</span>
+                  <span class="font-mono text-[9px] font-bold text-successGreen">96.2%</span>
+                </div>
+                <div class="flex items-center gap-1.5 mt-2 text-[7.5px] font-mono text-textMuted">
+                  <span class="w-1 h-1 rounded-full bg-successGreen"></span> INVENTORY
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ INFINITE MARQUEE TICKER ═══ -->
+  <div class="ticker-w py-8 border-y border-white/5 relative overflow-hidden">
+    <div class="ticker-i gap-16 font-mono text-[11px] font-semibold text-textMuted tracking-wider uppercase">
+      <!-- 1st iteration -->
+      <span>Amazon Seller Central</span><span>·</span>
+      <span>Shopify Ingestion</span><span>·</span>
+      <span>Razorpay Gateway</span><span>·</span>
+      <span>PayU Payments</span><span>·</span>
+      <span>Flipkart Marketplace</span><span>·</span>
+      <span>Myntra Channel</span><span>·</span>
+      <span>Unicommerce API</span><span>·</span>
+      <span>Tally Prime Sync</span><span>·</span>
+      <span>ICICI Corporate Banking</span><span>·</span>
+      <span>HDFC Treasury Rails</span><span>·</span>
+      <span>Shiprocket Logistics</span><span>·</span>
+      <span>Meta Ads Hub</span><span>·</span>
+      <span>Google Ads Manager</span><span>·</span>
+      
+      <!-- 2nd iteration for endless flow -->
+      <span>Amazon Seller Central</span><span>·</span>
+      <span>Shopify Ingestion</span><span>·</span>
+      <span>Razorpay Gateway</span><span>·</span>
+      <span>PayU Payments</span><span>·</span>
+      <span>Flipkart Marketplace</span><span>·</span>
+      <span>Myntra Channel</span><span>·</span>
+      <span>Unicommerce API</span><span>·</span>
+      <span>Tally Prime Sync</span><span>·</span>
+      <span>ICICI Corporate Banking</span><span>·</span>
+      <span>HDFC Treasury Rails</span><span>·</span>
+      <span>Shiprocket Logistics</span><span>·</span>
+      <span>Meta Ads Hub</span><span>·</span>
+      <span>Google Ads Manager</span><span>·</span>
+    </div>
+  </div>
+
+  <!-- ═══ PROBLEM GAP SECTION ═══ -->
+  <section id="problem" class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- LEFT text content -->
+      <div class="lg:col-span-5 fade">
+        <span class="font-mono text-[10px] text-accentBlue font-semibold uppercase tracking-widest block mb-4">The Gap</span>
+        <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-6">
+          India's D2C economy is scaling. Its finance function <span class="italic text-textMuted">is not.</span>
+        </h2>
+        <p class="text-sm sm:text-base text-textMuted leading-relaxed">
+          More than ₹2,00,000 Crore in Indian D2C gross revenue is still tracked and consolidated on standard spreadsheets. Founders act as their own accountants, reconciling hundreds of thousands of ledger entries, delaying crucial corporate actions and diligence.
+        </p>
+      </div>
+      
+      <!-- RIGHT card list -->
+      <div class="lg:col-span-7 space-y-4">
+        
+        <div class="fade bg-surface/40 border border-white/5 hover:border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center transition-all">
+          <div class="font-mono text-3xl font-bold text-white tracking-tight shrink-0">₹2L Cr+</div>
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-1">Manual D2C Transaction Overhead</h4>
+            <p class="text-xs text-textMuted leading-relaxed font-mono">Excel consolidation · Inconsistent settlement feeds · Revenue slippage</p>
+          </div>
+        </div>
+        
+        <div class="fade bg-surface/40 border border-white/5 hover:border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center transition-all">
+          <div class="font-mono text-3xl font-bold text-white tracking-tight shrink-0">&lt;5%</div>
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-1">Outsourced CFO Availability</h4>
+            <p class="text-xs text-textMuted leading-relaxed font-mono">Of 1,000+ top Indian D2C brands exceeding ₹10Cr have professional CFO backing</p>
+          </div>
+        </div>
+
+        <div class="fade bg-surface/40 border border-white/5 hover:border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center transition-all">
+          <div class="font-mono text-3xl font-bold text-white tracking-tight shrink-0">3 Wk</div>
+          <div>
+            <h4 class="text-sm font-semibold text-white mb-1">Due Diligence Window Pressure</h4>
+            <p class="text-xs text-textMuted leading-relaxed font-mono">Audit timelines separate completed capital raises from failed term sheets</p>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ THE AUTONOMOUS CFO PIPELINE (VERCEL/RUNWAY SHOWCASE) ═══ -->
+  <section id="pipeline" class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- LEFT COLUMN: TAB CONTROLLER AND TEXT -->
+      <div class="lg:col-span-5 flex flex-col justify-center fade">
+        <span class="font-mono text-[10px] text-accentBlue font-semibold uppercase tracking-widest block mb-4">Inside the Infrastructure</span>
+        <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-6">
+          The autonomous pipeline designed for Indian commerce.
+        </h2>
+        
+        <!-- Interactive buttons (vertical tabs) with Railway Sliding Track -->
+        <div class="relative pl-8 mb-8">
+          <!-- The Track Line -->
+          <div class="absolute left-3 top-0 bottom-0 w-[2px] bg-white/10 dark:bg-white/5 rounded-full overflow-hidden">
+            <!-- Active sliding track path -->
+            <div id="pipeline-active-track" class="absolute top-0 left-0 w-full bg-accentBlue transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" style="height: 0px;"></div>
+          </div>
+          
+          <!-- The sliding train puck -->
+          <div id="sliding-train-puck" class="absolute left-[3px] w-5 h-10 bg-[#0d1117] border border-accentBlue rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col justify-between py-1.5 px-1 z-30" style="transform: translateY(0px);">
+            <!-- Dots inside the train to simulate windows/compartments like Railway -->
+            <div class="train-dot w-2 h-1 rounded-sm bg-accentBlue/20 mx-auto"></div>
+            <div class="train-dot w-2 h-1 rounded-sm bg-accentBlue mx-auto animate-pulse"></div>
+            <div class="train-dot w-2 h-1 rounded-sm bg-accentBlue/20 mx-auto"></div>
+          </div>
+
+          <div class="space-y-3">
+            <!-- Tab 1: Connecting -->
+            <button id="pbtn-connecting" onclick="switchPipelineStep('connecting')" class="w-full text-left p-4 rounded-xl border transition-all flex items-start gap-4 select-none bg-surface/80 border-accentBlue/30 shadow-[0_0_12px_rgba(59,130,246,0.05)]">
+              <div class="w-5 h-5 rounded-full bg-accentBlue/10 border border-accentBlue/30 text-accentBlue flex items-center justify-center font-mono text-[10px] font-bold shrink-0 mt-0.5 animate-pulse">01</div>
+              <div>
+                <div class="text-sm font-bold text-white transition-colors" id="phead-connecting">01 · Connecting Streams</div>
+                <div class="text-xs text-textMuted mt-1">Shopify, Amazon, payment gateways, and banking ledgers synced in real-time.</div>
+              </div>
+            </button>
+            
+            <!-- Tab 2: Interworking -->
+            <button id="pbtn-interworking" onclick="switchPipelineStep('interworking')" class="w-full text-left p-4 rounded-xl border border-white/5 hover:border-white/10 hover:bg-white/5 transition-all flex items-start gap-4 select-none bg-transparent">
+              <div class="w-5 h-5 rounded-full bg-white/5 border border-white/10 text-textMuted flex items-center justify-center font-mono text-[10px] font-bold shrink-0 mt-0.5">02</div>
+              <div>
+                <div class="text-sm font-bold text-textMuted transition-colors" id="phead-interworking">02 · Interworking Workflows</div>
+                <div class="text-xs text-textMuted mt-1">n8n triggers, FastAPI gateways, and Claude models validating settlements.</div>
+              </div>
+            </button>
+            
+            <!-- Tab 3: Actioning -->
+            <button id="pbtn-actioning" onclick="switchPipelineStep('actioning')" class="w-full text-left p-4 rounded-xl border border-white/5 hover:border-white/10 hover:bg-white/5 transition-all flex items-start gap-4 select-none bg-transparent">
+              <div class="w-5 h-5 rounded-full bg-white/5 border border-white/10 text-textMuted flex items-center justify-center font-mono text-[10px] font-bold shrink-0 mt-0.5">03</div>
+              <div>
+                <div class="text-sm font-bold text-textMuted transition-colors" id="phead-actioning">03 · Actioning Compliance</div>
+                <div class="text-xs text-textMuted mt-1">Immutable ledgers, GSTR automation, and certified chartered accountant sign-offs.</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN: HIGH FIDELITY CANVAS GRAPHICS -->
+      <div class="lg:col-span-7 flex justify-center fade overflow-hidden lg:overflow-visible w-full">
+        <div class="pipeline-canvas-wrapper w-full overflow-hidden lg:overflow-visible">
+          <div class="showcase-canvas relative w-[620px] h-[420px] min-h-[420px] bg-[#161b27] border border-white/10 rounded-2xl p-6 overflow-hidden shadow-2xl flex flex-col justify-between always-dark">
+            <!-- Background Grid Matrix -->
+            <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.015)_1.2px,transparent_1.2px)] bg-[size:16px_16px] pointer-events-none"></div>
+            
+            <!-- Sleek Glow Highlight -->
+            <div id="pipeline-canvas-glow" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-accentBlue/5 rounded-full blur-[80px] pointer-events-none transition-colors duration-500"></div>
+            
+            <!-- Dynamic Canvas Swap Area -->
+            <div id="pipeline-canvas" class="w-full h-full min-h-[370px] flex items-center justify-center relative">
+              <!-- DEFAULT STATE: CONNECTING -->
+              <div id="cstep-connecting" class="w-full h-full flex flex-col justify-between text-left transition-all duration-500">
+                <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                  <span class="font-mono text-[9px] text-textMuted uppercase tracking-widest">Active Data Pipeline Nodes</span>
+                  <span class="flex items-center gap-1.5 text-[8.5px] font-mono text-successGreen"><span class="w-1.5 h-1.5 rounded-full bg-successGreen animate-pulse"></span> 4 SOURCES SYNCING</span>
+                </div>
+                
+                <div class="relative flex-1 min-h-[260px] flex items-center justify-between my-4">
+                  <!-- Left Nodes Column -->
+                  <div class="space-y-4 z-20">
+                    <div class="slide-node slide-node-1 flex items-center gap-2 bg-background/90 border border-white/10 rounded-lg px-3 py-2 w-[130px] shadow-lg animate-float-1">
+                      <div class="w-1.5 h-1.5 rounded-full bg-[#f97316]"></div>
+                      <span class="font-mono text-[9.5px] text-white">Amazon Seller</span>
+                    </div>
+                    <div class="slide-node slide-node-2 flex items-center gap-2 bg-background/90 border border-white/10 rounded-lg px-3 py-2 w-[130px] shadow-lg animate-float-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-[#96bf48]"></div>
+                      <span class="font-mono text-[9.5px] text-white">Shopify Pay</span>
+                    </div>
+                    <div class="slide-node slide-node-3 flex items-center gap-2 bg-background/90 border border-white/10 rounded-lg px-3 py-2 w-[130px] shadow-lg animate-float-3">
+                      <div class="w-1.5 h-1.5 rounded-full bg-[#2563eb]"></div>
+                      <span class="font-mono text-[9.5px] text-white">Razorpay API</span>
+                    </div>
+                    <div class="slide-node slide-node-4 flex items-center gap-2 bg-background/90 border border-white/10 rounded-lg px-3 py-2 w-[130px] shadow-lg animate-float-4">
+                      <div class="w-1.5 h-1.5 rounded-full bg-[#fbbf24]"></div>
+                      <span class="font-mono text-[9.5px] text-white">ICICI Banking</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Center Target Core Node -->
+                  <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-background border-2 border-accentBlue/40 w-[110px] h-[110px] rounded-full flex flex-col items-center justify-center text-center shadow-[0_0_24px_rgba(59,130,246,0.15)] select-none">
+                    <!-- Outer Pulse ring -->
+                    <div class="absolute inset-0 rounded-full border border-accentBlue/20 animate-ping"></div>
+                    <svg class="w-6 h-6 text-accentBlue mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0v3.75"/></svg>
+                    <span class="font-mono text-[8px] text-accentBlue font-bold uppercase tracking-wider">DATA CORE</span>
+                  </div>
+                  
+                  <!-- Right Ledger Sync Table -->
+                  <div class="w-[180px] bg-background/80 border border-white/5 rounded-xl p-3 z-20 shadow-lg font-mono text-[8.5px] space-y-2">
+                    <div class="text-[8px] text-textMuted uppercase font-bold border-b border-white/5 pb-1 mb-1">Synced Streams</div>
+                    <div class="flex justify-between items-center py-0.5"><span class="text-white">ORD-89234</span><span class="text-textMuted font-mono">Shopify</span><span class="text-successGreen">SYNCED</span></div>
+                    <div class="flex justify-between items-center py-0.5"><span class="text-white">SET-49219</span><span class="text-textMuted font-mono">Amazon</span><span class="text-accentBlue animate-pulse font-bold">PARSING</span></div>
+                    <div class="flex justify-between items-center py-0.5"><span class="text-white">PAY-89201</span><span class="text-textMuted font-mono">Stripe</span><span class="text-successGreen">DONE</span></div>
+                    <div class="flex justify-between items-center py-0.5"><span class="text-white">TXN-49202</span><span class="text-textMuted font-mono">ICICI</span><span class="text-successGreen">SYNCED</span></div>
+                  </div>
+                  
+                  <!-- Glowing Horizontal railway track corridor -->
+                  <div class="hidden md:flex absolute left-[130px] right-[180px] top-1/2 -translate-y-1/2 h-[52px] overflow-hidden bg-background/30 border-y border-white/5 items-center z-10 group/track pointer-events-auto">
+                    <!-- Rails -->
+                    <div class="absolute inset-x-0 h-4 border-y border-dashed border-white/5 opacity-30 z-0"></div>
+                    <div class="absolute inset-x-0 h-[1px] bg-accentBlue/20 z-0"></div>
+                    <div class="absolute inset-x-0 h-[1px] bg-accentBlue/30 blur-[1.5px] z-0"></div>
+                    
+                    <!-- Seamless Marquee Wrapper -->
+                    <div class="flex w-[200%] absolute top-1/2 -translate-y-1/2 left-0 items-center">
+                      <!-- Segment A -->
+                      <div class="flex shrink-0 w-1/2 justify-around animate-track-marquee pr-4">
+                        <div class="flex items-center gap-1.5 bg-[#161b27] border border-white/10 rounded-full px-2.5 py-1 text-[8.5px] font-mono text-white shadow-md">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#f97316] animate-pulse"></span>
+                          <span>Amazon: ₹49k</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-[#161b27] border border-white/10 rounded-full px-2.5 py-1 text-[8.5px] font-mono text-white shadow-md">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#96bf48] animate-pulse"></span>
+                          <span>Shopify: Sync</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-[#161b27] border border-white/10 rounded-full px-2.5 py-1 text-[8.5px] font-mono text-white shadow-md">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse"></span>
+                          <span>Razorpay: OK</span>
+                        </div>
+                      </div>
+                      <!-- Segment B (Duplicate) -->
+                      <div class="flex shrink-0 w-1/2 justify-around animate-track-marquee pr-4">
+                        <div class="flex items-center gap-1.5 bg-[#161b27] border border-white/10 rounded-full px-2.5 py-1 text-[8.5px] font-mono text-white shadow-md">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#f97316] animate-pulse"></span>
+                          <span>Amazon: ₹49k</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-[#161b27] border border-white/10 rounded-full px-2.5 py-1 text-[8.5px] font-mono text-white shadow-md">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#96bf48] animate-pulse"></span>
+                          <span>Shopify: Sync</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-[#161b27] border border-white/10 rounded-full px-2.5 py-1 text-[8.5px] font-mono text-white shadow-md">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse"></span>
+                          <span>Razorpay: OK</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- SVG Flow connectors overlay -->
+                  <svg class="absolute inset-0 w-full h-full z-10 pointer-events-none" viewBox="0 0 572 260">
+                    <path d="M 130 36 Q 210 36, 231 90" class="svflow" fill="none"></path>
+                    <path d="M 130 92 Q 190 92, 231 110" class="svflow svflow2" fill="none"></path>
+                    <path d="M 130 148 Q 190 148, 231 150" class="svflow svflow3" fill="none"></path>
+                    <path d="M 130 204 Q 210 204, 231 170" class="svflow" fill="none"></path>
+                    <path d="M 341 130 H 392" class="svflow svflow2" fill="none"></path>
+                  </svg>
+                </div>
+                
+                <div class="border-t border-white/5 pt-3 font-mono text-[9px] text-textMuted flex items-center justify-between">
+                  <span>Auto-Ingestion Rate: <span class="text-white font-bold">245 KB/s</span></span>
+                  <span>Total Synced Today: <span class="text-white font-bold">14,923 items</span></span>
+                </div>
+              </div>
+
+              <!-- STATE 2: INTERWORKING (n8n node graph + JSON typewriter console) -->
+              <div id="cstep-interworking" class="w-full h-full flex flex-col justify-between text-left hidden transition-all duration-500">
+                <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                  <span class="font-mono text-[9px] text-textMuted uppercase tracking-widest">Autonomous Pipeline Engines</span>
+                  <span class="flex items-center gap-1.5 text-[8.5px] font-mono text-[#a855f7]"><span class="w-1.5 h-1.5 rounded-full bg-[#a855f7] animate-pulse"></span> ACTIVE CLUSTERS: 4</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 my-4 items-center">
+                  <!-- Left side: 3D Stacked Environment Deck -->
+                  <div class="deck-container z-20">
+                    <!-- Production Card -->
+                    <div class="deck-card deck-card-prod bg-[#161b27]/95 border border-successGreen/35 rounded-xl p-3.5 flex flex-col justify-between always-dark shadow-2xl">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2 h-2 rounded-full bg-successGreen animate-pulse"></span>
+                          <span class="font-mono text-[9.5px] font-bold text-white">production-api</span>
+                        </div>
+                        <span class="font-mono text-[8px] bg-successGreen/10 text-successGreen px-1.5 py-0.5 rounded border border-successGreen/25">ACTIVE</span>
+                      </div>
+                      <div class="mt-2 font-mono text-[8px] text-textMuted leading-tight space-y-0.5">
+                        <div>BRANCH: <span class="text-white font-bold">main</span></div>
+                        <div>TRIGGER: <span class="text-accentBlue font-bold">ICICI webhook sync</span></div>
+                        <div>LATENCY: <span class="text-successGreen">12ms</span></div>
+                      </div>
+                    </div>
+                    
+                    <!-- Staging PR-115 Card -->
+                    <div class="deck-card deck-card-staging bg-[#161b27]/95 border border-[#a855f7]/35 rounded-xl p-3.5 flex flex-col justify-between always-dark shadow-2xl">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2 h-2 rounded-full bg-[#a855f7] animate-pulse"></span>
+                          <span class="font-mono text-[9.5px] font-bold text-white">pr-115-gst-refactor</span>
+                        </div>
+                        <span class="font-mono text-[8px] bg-[#a855f7]/10 text-[#a855f7] px-1.5 py-0.5 rounded border border-[#a855f7]/25">BUILDING</span>
+                      </div>
+                      <div class="mt-2 font-mono text-[8px] text-textMuted leading-tight space-y-0.5">
+                        <div>BRANCH: <span class="text-white">feature/gst-filing</span></div>
+                        <div>TRIGGER: <span class="text-[#a855f7]">FastAPI compiler</span></div>
+                        <div>PROGRESS: <span class="text-alertAmber">84%</span></div>
+                      </div>
+                    </div>
+                    
+                    <!-- Development Card -->
+                    <div class="deck-card deck-card-dev bg-[#161b27]/90 border border-white/10 rounded-xl p-3.5 flex flex-col justify-between always-dark shadow-2xl">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                          <span class="w-2 h-2 rounded-full bg-textMuted"></span>
+                          <span class="font-mono text-[9.5px] font-bold text-white font-bold">dev-sandbox</span>
+                        </div>
+                        <span class="font-mono text-[8px] bg-white/5 text-textMuted px-1.5 py-0.5 rounded border border-white/5">IDLE</span>
+                      </div>
+                      <div class="mt-2 font-mono text-[8px] text-textMuted leading-tight space-y-0.5">
+                        <div>BRANCH: <span class="text-white">local-testing</span></div>
+                        <div>TRIGGER: <span class="text-textMuted">manual launch</span></div>
+                        <div>PORTS: <span class="text-white">8000 · 9000</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Right side: JSON Typewriter Console -->
+                  <div class="bg-background/90 border border-white/10 rounded-lg p-3 h-[240px] flex flex-col justify-between shadow-lg font-mono text-[8.5px] relative">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-1.5 mb-1.5 text-[8px] text-textMuted uppercase">
+                      <span>Typewriter Log Stream</span>
+                      <span class="animate-pulse text-successGreen font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-successGreen"></span> RECORD_STREAM</span>
+                    </div>
+                    <!-- The container where mock JSON schemas print -->
+                    <div id="typewriter-log-content" class="flex-1 overflow-y-auto text-successGreen/90 font-mono text-[8.5px] leading-relaxed whitespace-pre-wrap min-h-[160px] break-all max-h-[160px]"></div>
+                    
+                    <div class="border-t border-white/5 pt-1.5 mt-1.5 flex justify-between items-center text-[7.5px] text-textMuted">
+                      <span>Buffer: 100% stable</span>
+                      <span class="text-[#a855f7] animate-pulse">PARSING</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="border-t border-white/5 pt-3 font-mono text-[9px] text-textMuted flex items-center justify-between">
+                  <span>Inference Latency: <span class="text-white font-bold">124 ms</span></span>
+                  <span>Active Triggers: <span class="text-white font-bold">n8n Gateway</span></span>
+                </div>
+              </div>
+
+              <!-- STATE 3: ACTIONING (Topology layout + CA audited green checkbox sign-off stamp) -->
+              <div id="cstep-actioning" class="w-full h-full flex flex-col justify-between text-left hidden transition-all duration-500">
+                <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                  <span class="font-mono text-[9px] text-textMuted uppercase tracking-widest">Compliance Sign-off Network</span>
+                  <span class="flex items-center gap-1.5 text-[8.5px] font-mono text-successGreen"><span class="w-1.5 h-1.5 rounded-full bg-successGreen"></span> SECURED</span>
+                </div>
+                
+                <div class="relative flex-1 min-h-[260px] flex items-center justify-between my-4 gap-4">
+                  <!-- Left side: Audit Telemetry Logs -->
+                  <div class="bg-background/90 border border-white/10 rounded-lg p-3.5 h-[240px] flex-1 flex flex-col justify-between shadow-lg font-mono text-[8.5px] z-20 always-dark">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-1.5 mb-1.5 text-[8px] text-textMuted uppercase">
+                      <span>Audit Telemetry Stream</span>
+                      <span class="animate-pulse text-successGreen font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-successGreen"></span> SYSTEM_LOCKED</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto text-[#22c55e] space-y-1 font-mono text-[8px] leading-relaxed break-all">
+                      <div>[17:04:12] INITIALIZE AUDIT CHAIN ... <span class="text-white">OK</span></div>
+                      <div>[17:04:13] SCANNING 29 GST STATE FEEDS ... <span class="text-white">DONE</span></div>
+                      <div>[17:04:14] COMPARE LEDGER VS SETTLEMENTS ... <span class="text-white">100% MATCH</span></div>
+                      <div>[17:04:15] SHA-256 HASH: <span class="text-white font-mono text-[7px] break-all">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495</span></div>
+                      <div>[17:04:16] GENERATING CERTIFIED AUDIT REPORT ... <span class="text-white">COMPLETE</span></div>
+                      <div>[17:04:17] CA SIGN-OFF ENVELOPE SEALED ... <span class="text-successGreen font-bold">READY</span></div>
+                    </div>
+                    <div class="border-t border-white/5 pt-1.5 mt-1.5 flex justify-between items-center text-[7.5px] text-textMuted">
+                      <span>ICAI Audit Stamp: 100% Verified</span>
+                      <span class="text-successGreen font-bold animate-pulse">COMPLIANT</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Right side: 3D Isometric Column -->
+                  <div class="iso-container z-20">
+                    <div class="iso-stack">
+                      <!-- Layer 3: Immutable Ledger (Bottom Layer) -->
+                      <div class="iso-layer iso-layer-bottom bg-[#0d1117]/95 border border-accentBlue/30 rounded-xl p-3 flex flex-col justify-between always-dark shadow-2xl select-none">
+                        <div class="flex items-center justify-between border-b border-white/5 pb-1">
+                          <span class="font-mono text-[8px] text-accentBlue font-bold uppercase">Immutable Ledger</span>
+                          <span class="w-1.5 h-1.5 rounded-full bg-accentBlue"></span>
+                        </div>
+                        <div class="space-y-1 mt-1 font-mono text-[7px] text-textMuted leading-tight">
+                          <div>HASH: <span class="text-white font-bold">SHA-256</span></div>
+                          <div>STATE: <span class="text-successGreen">STABLE</span></div>
+                          <div>TX SYNCED: <span class="text-white">49,202</span></div>
+                        </div>
+                      </div>
+                      
+                      <!-- Layer 2: Compliance filing queue (Middle Layer) -->
+                      <div class="iso-layer iso-layer-middle bg-[#161b27]/95 border border-[#a855f7]/30 rounded-xl p-3 flex flex-col justify-between always-dark shadow-2xl select-none">
+                        <div class="flex items-center justify-between border-b border-white/5 pb-1">
+                          <span class="font-mono text-[8px] text-[#a855f7] font-bold uppercase">GST filing queue</span>
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#a855f7]"></span>
+                        </div>
+                        <div class="space-y-1 mt-1 font-mono text-[7px] text-textMuted leading-tight">
+                          <div>STATES: <span class="text-white font-bold">29 Active</span></div>
+                          <div>QUEUE: <span class="text-successGreen">E-Invoice Done</span></div>
+                          <div>AUTO-FILE: <span class="text-[#a855f7]">ENABLED</span></div>
+                        </div>
+                      </div>
+                      
+                      <!-- Layer 1: CA Audit Stamp (Top Layer) -->
+                      <div class="iso-layer iso-layer-top bg-gradient-to-br from-[#166534]/90 to-[#14532d]/95 border border-successGreen/40 rounded-xl p-3 flex flex-col justify-between always-dark shadow-2xl select-none">
+                        <div class="flex items-center justify-between border-b border-successGreen/25 pb-1">
+                          <span class="font-mono text-[8px] text-white font-bold uppercase">CA Signed-Off</span>
+                          <span class="w-1.5 h-1.5 rounded-full bg-successGreen animate-pulse"></span>
+                        </div>
+                        <div class="space-y-1 mt-1 font-mono text-[7px] text-successGreen/80 leading-tight">
+                          <div>LEGAL: <span class="text-white font-bold">CA Ankit Ajmera</span></div>
+                          <div>ICAI NO: <span class="text-white font-bold text-[6.5px]">163821 / F.C.A</span></div>
+                          <div class="flex justify-between items-center text-[6px] border-t border-successGreen/20 pt-0.5">
+                            <span>ICAI SEAL:</span>
+                            <span class="text-white font-bold">APPROVED</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="border-t border-white/5 pt-3 font-mono text-[9px] text-textMuted flex items-center justify-between">
+                  <span>Compliance Level: <span class="text-white font-bold">100% Tax Compliant</span></span>
+                  <span>Active Signature: <span class="text-white font-bold">CA Verified Ledger</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FEATURE 1: LIVE INTERACTIVE CFO CONSOLE ═══ -->
+  <section class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- LEFT explanatory text -->
+      <div class="lg:col-span-5 fade">
+        <span class="inline-flex items-center bg-accentBlue/10 border border-accentBlue/20 rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-accentBlue mb-4">
+          Live CFO Console
+        </span>
+        <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-6">
+          Real-time financial intelligence at your fingertips.
+        </h2>
+        <p class="text-sm text-textMuted leading-relaxed mb-6">
+          No waiting for monthly summaries or spreadsheet models. Get immediate dashboard reports, automated GSTR filings, cash flows, and automated exception tracking built specifically for your marketplace feeds.
+        </p>
+        <ul class="space-y-3 font-mono text-[11px] text-textMuted">
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-accentBlue mt-1.5"></span> P&L, balance sheets, working capital updated daily</li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-accentBlue mt-1.5"></span> 3-way marketplace ledger settlement tracking</li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-accentBlue mt-1.5"></span> GST filing optimization for 29 states in India</li>
+        </ul>
+      </div>
+      
+      <!-- RIGHT INTERACTIVE CONSOLE PLATFORM -->
+      <div class="lg:col-span-7 fade">
+        <div class="bg-[#161b27] border border-white/10 rounded-2xl overflow-hidden shadow-2xl always-dark">
+          
+          <!-- Navigation bar -->
+          <div class="h-11 bg-background border-b border-white/5 flex items-center px-4 gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></div>
+            <span class="font-mono text-[10px] text-textMuted ml-3">AICFO Console — ACME Brands · FY 2025-26</span>
+            <span class="ml-auto font-mono text-[9px] text-successGreen flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span> LIVE CONNECT</span>
+          </div>
+          
+          <!-- Custom tabs -->
+          <div class="flex border-b border-white/5 bg-background/50">
+            <button id="tb-overview" onclick="switchDashboardTab('overview')" class="flex-1 py-3 font-mono text-[10px] font-semibold uppercase tracking-wider text-accentBlue border-b-2 border-accentBlue text-center transition-all select-none">Overview</button>
+            <button id="tb-reconciliation" onclick="switchDashboardTab('reconciliation')" class="flex-1 py-3 font-mono text-[10px] font-semibold uppercase tracking-wider text-textMuted hover:text-white text-center transition-all select-none">Reconciliation</button>
+            <button id="tb-gst" onclick="switchDashboardTab('gst')" class="flex-1 py-3 font-mono text-[10px] font-semibold uppercase tracking-wider text-textMuted hover:text-white text-center transition-all select-none">GST Filing</button>
+          </div>
+          
+          <!-- Inner Dynamic View Area -->
+          <div id="dashboard-content" class="p-6 min-h-[300px]">
+            
+            <!-- OVERVIEW SUB-VIEW -->
+            <div id="view-overview" class="space-y-6">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 border-b border-white/5 pb-6">
+                <div>
+                  <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">Revenue</div>
+                  <div class="font-mono text-base font-bold text-white mt-1">₹2.41 Cr</div>
+                  <div class="font-mono text-[8.5px] text-successGreen mt-1">▲ 12.4% MoM</div>
+                </div>
+                <div>
+                  <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">GP Margin</div>
+                  <div class="font-mono text-base font-bold text-white mt-1">43.7%</div>
+                  <div class="font-mono text-[8.5px] text-red-400 mt-1">▼ 2.1% cost</div>
+                </div>
+                <div>
+                  <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">Cash Runway</div>
+                  <div class="font-mono text-base font-bold text-white mt-1">8.4 Months</div>
+                  <div class="font-mono text-[8.5px] text-textMuted mt-1">STABLE</div>
+                </div>
+                <div>
+                  <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">CAC Blended</div>
+                  <div class="font-mono text-base font-bold text-white mt-1">₹1,240</div>
+                  <div class="font-mono text-[8.5px] text-successGreen mt-1">▲ Optimised</div>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- SVG Sparkline Trend -->
+                <div class="md:col-span-2 space-y-2">
+                  <div class="font-mono text-[8.5px] text-textMuted uppercase tracking-widest">P&L Net Profit Trend (Oct - Mar)</div>
+                  <div class="w-full h-32 relative bg-background/50 border border-white/5 rounded-lg p-2 flex items-center justify-center">
+                    <svg class="w-full h-full" viewBox="0 0 320 80" fill="none">
+                      <line x1="0" y1="64" x2="320" y2="64" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+                      <line x1="0" y1="40" x2="320" y2="40" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+                      <line x1="0" y1="16" x2="320" y2="16" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+                      <!-- Gradient Fill -->
+                      <path d="M 0 70 Q 40 50, 80 58 T 160 30 T 240 45 T 320 18 L 320 80 L 0 80 Z" fill="rgba(59,130,246,0.08)"></path>
+                      <!-- Main trend path -->
+                      <path class="ch-path drawn" id="dashboard-trend" d="M 0 70 Q 40 50, 80 58 T 160 30 T 240 45 T 320 18" stroke="#3b82f6" stroke-width="1.8" fill="none"></path>
+                    </svg>
+                  </div>
+                </div>
+                
+                <!-- Live Event Logs Log Block -->
+                <div class="space-y-2">
+                  <div class="font-mono text-[8.5px] text-textMuted uppercase tracking-widest flex items-center justify-between">
+                    <span>Active System Logs</span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-successGreen animate-pulse"></span>
+                  </div>
+                  <div id="live-logs-container" class="bg-background/80 border border-white/5 rounded-lg p-3 h-32 overflow-hidden space-y-2.5 font-mono text-[8.5px]">
+                    <div class="log-e flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-successGreen mt-1"></span><span class="text-textMuted">[16:08:11]</span><span class="text-white">Shopify orders sync: 12,050 rows reconciled</span></div>
+                    <div class="log-e flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-successGreen mt-1"></span><span class="text-textMuted">[16:02:44]</span><span class="text-white">Amazon payout credit verified at ICICI</span></div>
+                    <div class="log-e flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-alertAmber mt-1"></span><span class="text-textMuted">[15:58:02]</span><span class="text-white">TDS deviation detected: Razorpay 1% validation</span></div>
+                    <div class="log-e flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-successGreen mt-1"></span><span class="text-textMuted">[15:40:11]</span><span class="text-white">GSTR-1 summary prepared for 29 states</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ FEATURE 2: 3-WAY RECONCILIATION MOCK ═══ -->
+  <section class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- LEFT dashboard mock -->
+      <div class="lg:col-span-7 order-last lg:order-first fade">
+        <div class="bg-[#161b27] border border-white/10 rounded-2xl overflow-hidden shadow-2xl always-dark">
+          <div class="h-11 bg-background border-b border-white/5 flex items-center px-4 gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></div>
+            <span class="font-mono text-[10px] text-textMuted ml-3">Reconciliation Ingest — 3-Way Match Verification</span>
+            <span class="ml-auto font-mono text-[9px] text-successGreen bg-successGreen/10 border border-successGreen/20 px-2 py-0.5 rounded uppercase">Verified</span>
+          </div>
+          
+          <div class="p-6 space-y-6">
+            <!-- Headers -->
+            <div class="hidden sm:grid grid-cols-3 gap-2 font-mono text-[9px] text-textMuted uppercase tracking-wider text-center border-b border-white/5 pb-3">
+              <div>Order Feed</div>
+              <div>Gateway Feed</div>
+              <div>Bank Statement</div>
+            </div>
+            
+            <!-- Dynamic matched blocks -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-2.5">
+              <div class="flex-1 bg-background border border-white/5 rounded-lg p-2.5 font-mono text-[9px] min-w-0">
+                <span class="sm:hidden block text-[7px] text-accentBlue font-bold uppercase tracking-wider mb-1">Order Feed</span>
+                <div class="text-textMuted">ORD-89234</div>
+                <div class="text-white font-bold my-1">₹12,450.00</div>
+                <div class="text-[8px] text-textMuted">Shopify · Oct 14</div>
+              </div>
+              <div class="text-center text-textMuted text-xs font-mono shrink-0 select-none transform rotate-90 sm:rotate-0 my-1 sm:my-0">→</div>
+              <div class="flex-1 bg-background border border-white/5 rounded-lg p-2.5 font-mono text-[9px] min-w-0">
+                <span class="sm:hidden block text-[7px] text-successGreen font-bold uppercase tracking-wider mb-1">Gateway Feed</span>
+                <div class="text-textMuted">PAY-76231</div>
+                <div class="text-white font-bold my-1">₹12,450.00</div>
+                <div class="text-[8px] text-textMuted">Razorpay · Oct 15</div>
+              </div>
+              <div class="text-center text-textMuted text-xs font-mono shrink-0 select-none transform rotate-90 sm:rotate-0 my-1 sm:my-0">→</div>
+              <div class="flex-1 bg-background border border-white/5 rounded-lg p-2.5 font-mono text-[9px] min-w-0">
+                <span class="sm:hidden block text-[7px] text-alertAmber font-bold uppercase tracking-wider mb-1">Bank Statement</span>
+                <div class="text-textMuted">TXN-44821</div>
+                <div class="text-white font-bold my-1">₹12,450.00</div>
+                <div class="text-[8px] text-textMuted">ICICI · Oct 17</div>
+              </div>
+            </div>
+            
+            <div class="flex items-center justify-between border-t border-white/5 pt-4">
+              <span class="font-mono text-[9px] text-successGreen bg-successGreen/10 border border-successGreen/25 rounded px-2.5 py-1 uppercase tracking-widest">● 3-Way Matched</span>
+              <span class="font-mono text-[9.5px] text-textMuted">SOP Compliance Audit Trail: <span class="text-white font-bold font-mono">#A7F2B9</span></span>
+            </div>
+            
+            <!-- Exception summaries -->
+            <div class="bg-background border border-white/5 rounded-xl p-4 font-mono text-[10px] space-y-2">
+              <div class="text-textMuted font-bold border-b border-white/5 pb-2 mb-2 uppercase tracking-wide">Live Pipeline Exceptions</div>
+              <div class="flex items-center justify-between py-1 border-b border-white/5">
+                <span class="text-white">ORD-89236</span>
+                <span class="text-textMuted font-mono">Flipkart MTR deviation</span>
+                <span class="text-alertAmber bg-alertAmber/10 border border-alertAmber/20 px-2 py-0.5 rounded text-[8px] uppercase">Reviewing</span>
+              </div>
+              <div class="flex items-center justify-between py-1">
+                <span class="text-white">ORD-89239</span>
+                <span class="text-textMuted font-mono">COD Return margin mismatch</span>
+                <span class="text-red-400 bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded text-[8px] uppercase">Flagged</span>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT content -->
+      <div class="lg:col-span-5 fade">
+        <span class="inline-flex items-center bg-accentBlue/10 border border-accentBlue/20 rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-accentBlue mb-4">
+          3-Way Reconciliation
+        </span>
+        <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-6">
+          Every single rupee matched. Zero data leakage.
+        </h2>
+        <p class="text-sm text-textMuted leading-relaxed mb-6">
+          Our platform matches order payloads from Amazon, Flipkart, and Shopify directly to payout settlements from payment gateways (Razorpay, PayU, Stripe) and actual deposits verified in bank accounts. Continuous 3-way validation prevents common tax leaks and order tracking failures.
+        </p>
+        <ul class="space-y-3 font-mono text-[11px] text-textMuted">
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-accentBlue mt-1.5"></span> Maker-Checker validation parameters on all items</li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-accentBlue mt-1.5"></span> Automatic fee verification checks to catch hidden gateway charges</li>
+          <li class="flex items-start gap-3"><span class="w-1.5 h-1.5 rounded-full bg-accentBlue mt-1.5"></span> Audit trails locked with secure SHA-256 validation hashes</li>
+        </ul>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ THE FOUR-DOMAIN INFRASTRUCTURE STACK ═══ -->
+  <section id="platform" class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="text-center max-w-2xl mx-auto mb-16 fade">
+      <span class="font-mono text-[10px] text-accentBlue font-semibold uppercase tracking-widest block mb-4">One Unified Firm</span>
+      <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-6">
+        Four dedicated domains. A complete corporate finance stack.
+      </h2>
+      <p class="text-sm text-textMuted leading-relaxed">
+        One central real-time finance data engine powers our complete array of tools and compliance layers, providing strategic advisory backbones for Indian D2C enterprises.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Domain 1 -->
+      <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+        <div>
+          <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Parent Domain</div>
+          <h3 class="font-mono text-base font-bold text-white mb-3">colonel.finance</h3>
+          <p class="text-xs text-textMuted leading-relaxed mb-6">
+            The institutional foundation. Holding relationships with 7+ leading VC funds and Shark Tank India portfolio operators.
+          </p>
+        </div>
+        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Credentials Layer</div>
+      </div>
+      
+      <!-- Domain 2 -->
+      <div class="fade bg-surface/30 border border-accentBlue/20 hover:border-accentBlue/50 rounded-2xl p-6 transition-all group flex flex-col justify-between shadow-[0_4px_24px_rgba(59,130,246,0.05)]">
+        <div>
+          <div class="font-mono text-[10px] text-accentBlue uppercase tracking-widest mb-6">Core Engine</div>
+          <h3 class="font-mono text-base font-bold text-accentBlue mb-3">agent.accountant</h3>
+          <p class="text-xs text-textMuted leading-relaxed mb-6">
+            The automated transaction pipeline. Connects webhook streams from 40+ APIs to execute 3-way recon using FastAPI and n8n models.
+          </p>
+        </div>
+        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">API Ingestion Engine</div>
+      </div>
+
+      <!-- Domain 3 -->
+      <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+        <div>
+          <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">CFO Layer</div>
+          <h3 class="font-mono text-base font-bold text-white mb-3">aicfo.finance</h3>
+          <p class="text-xs text-textMuted leading-relaxed mb-6">
+             Outsourced CFO capabilities. Integrates real-time daily operational cash flow insights with strategic fundraising diligence prep.
+          </p>
+        </div>
+        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Advisory Layer</div>
+      </div>
+
+      <!-- Domain 4 -->
+      <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+        <div>
+          <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Compliance Layer</div>
+          <h3 class="font-mono text-base font-bold text-white mb-3">aichartered.accountant</h3>
+          <p class="text-xs text-textMuted leading-relaxed mb-6">
+             AI-native auditing workflows. GSTR filing automation, corporate filings with MCA, tax auditing compliance pipelines.
+          </p>
+        </div>
+        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Chartered Accounting</div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ AGENT LIBRARY & GOVERNANCE TABLE ═══ -->
+  <section class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="fade text-left mb-16">
+      <span class="font-mono text-[10px] text-accentBlue font-semibold uppercase tracking-widest block mb-4">Autonomous Library</span>
+      <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-4">
+        84 active compliance agents.
+      </h2>
+      <h3 class="font-serif text-2xl sm:text-3xl font-normal text-textMuted italic">
+        Every workflow mapped to secure execution pipelines.
+      </h3>
+    </div>
+    
+    <!-- Table Grid -->
+    <div class="fade bg-surface/20 border border-white/10 rounded-2xl overflow-hidden shadow-xl mb-12">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left font-mono text-[11px] border-collapse">
+          <thead>
+            <tr class="text-textMuted uppercase tracking-widest text-[9px] border-b border-white/5 bg-background/50">
+              <th class="py-4 px-6 font-semibold">Agent</th>
+              <th class="py-4 px-6 font-semibold">Workflow Domain</th>
+              <th class="py-4 px-6 font-semibold">Schedule Status</th>
+              <th class="py-4 px-6 font-semibold text-right">Executions</th>
+              <th class="py-4 px-6 font-semibold text-right">Accuracy Rate</th>
+              <th class="py-4 px-6 font-semibold text-right">State</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr class="hover:bg-white/5 transition-all">
+              <td class="py-4 px-6 font-semibold text-white font-mono">Amazon Settlement Match</td>
+              <td class="py-4 px-6"><span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">Reconciliation</span></td>
+              <td class="py-4 px-6 text-textMuted">Daily 09:00 IST</td>
+              <td class="py-4 px-6 text-right text-textMuted">1,402 runs</td>
+              <td class="py-4 px-6 text-right text-successGreen font-bold">99.8%</td>
+              <td class="py-4 px-6 text-right"><span class="inline-flex items-center gap-1.5 text-successGreen"><span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span> Active</span></td>
+            </tr>
+            <tr class="hover:bg-white/5 transition-all">
+              <td class="py-4 px-6 font-semibold text-white font-mono">GSTR-1 Data Preparation</td>
+              <td class="py-4 px-6"><span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">GST & Tax</span></td>
+              <td class="py-4 px-6 text-textMuted">Monthly (5th)</td>
+              <td class="py-4 px-6 text-right text-textMuted">12 runs</td>
+              <td class="py-4 px-6 text-right text-successGreen font-bold">100%</td>
+              <td class="py-4 px-6 text-right"><span class="inline-flex items-center gap-1.5 text-successGreen"><span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span> Active</span></td>
+            </tr>
+            <tr class="hover:bg-white/5 transition-all">
+              <td class="py-4 px-6 font-semibold text-white font-mono">Shopify Payouts Ingest</td>
+              <td class="py-4 px-6"><span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">Payouts Sync</span></td>
+              <td class="py-4 px-6 text-textMuted">Weekly cycle</td>
+              <td class="py-4 px-6 text-right text-textMuted">890 runs</td>
+              <td class="py-4 px-6 text-right text-successGreen font-bold">99.1%</td>
+              <td class="py-4 px-6 text-right"><span class="inline-flex items-center gap-1.5 text-successGreen"><span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span> Active</span></td>
+            </tr>
+            <tr class="hover:bg-white/5 transition-all">
+              <td class="py-4 px-6 font-semibold text-white font-mono">Vendor AP Ledger Sync</td>
+              <td class="py-4 px-6"><span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">AP / AR Sync</span></td>
+              <td class="py-4 px-6 text-textMuted">ERP Triggers</td>
+              <td class="py-4 px-6 text-right text-textMuted">2,100 runs</td>
+              <td class="py-4 px-6 text-right text-successGreen font-bold">98.4%</td>
+              <td class="py-4 px-6 text-right"><span class="inline-flex items-center gap-1.5 text-successGreen"><span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span> Active</span></td>
+            </tr>
+            <tr class="hover:bg-white/5 transition-all">
+              <td class="py-4 px-6 font-semibold text-white font-mono">Razorpay Fee Auditor</td>
+              <td class="py-4 px-6"><span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">Reconciliation</span></td>
+              <td class="py-4 px-6 text-textMuted">Weekly cycle</td>
+              <td class="py-4 px-6 text-right text-textMuted">455 runs</td>
+              <td class="py-4 px-6 text-right text-alertAmber font-bold">92.5%</td>
+              <td class="py-4 px-6 text-right"><span class="inline-flex items-center gap-1.5 text-alertAmber"><span class="w-1 h-1 rounded-full bg-alertAmber animate-pulse"></span> Resolving</span></td>
+            </tr>
+            <tr class="hover:bg-white/5 transition-all">
+              <td class="py-4 px-6 font-semibold text-white font-mono">Warehouse GRN Auditor</td>
+              <td class="py-4 px-6"><span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">Inventory Match</span></td>
+              <td class="py-4 px-6 text-textMuted">Daily 18:00 IST</td>
+              <td class="py-4 px-6 text-right text-textMuted">670 runs</td>
+              <td class="py-4 px-6 text-right text-successGreen font-bold">96.2%</td>
+              <td class="py-4 px-6 text-right"><span class="inline-flex items-center gap-1.5 text-successGreen"><span class="w-1 h-1 rounded-full bg-successGreen animate-pulse"></span> Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Compliance highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <div class="fade bg-surface/30 border border-white/5 hover:border-white/10 rounded-2xl p-8 transition-all">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-accentBlue">
+            <!-- Icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">Immutable Ledger Compliance</h3>
+        </div>
+        <p class="text-xs text-textMuted leading-relaxed">
+          Every autonomous transaction update is cryptographically hashed with SHA-256 and stored on private ledger systems. Full SOC 2 alignment ensures data integrity, masking PII records before they ever touch indexing pipelines.
+        </p>
+      </div>
+
+      <div class="fade bg-surface/30 border border-white/5 hover:border-white/10 rounded-2xl p-8 transition-all">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-accentBlue">
+            <!-- Icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3 class="text-base font-bold text-white">Maker-Checker Governance Controls</h3>
+        </div>
+        <p class="text-xs text-textMuted leading-relaxed">
+          No agent posts unilaterally to your production ERP ledger. Automated agents acts as the "Maker," assembling payouts. A licensed Chartered Accountant acts as the "Checker," verifying and approving records before posting.
+        </p>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ TRACTION & VC PARTNERS ═══ -->
+  <section id="traction" class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="fade text-center max-w-2xl mx-auto mb-16">
+      <span class="font-mono text-[10px] text-accentBlue font-semibold uppercase tracking-widest block mb-4">Traction</span>
+      <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white">
+        Proven scale. Trusted by high-growth Indian operators.
+      </h2>
+    </div>
+    
+    <!-- Count-up numerical grids -->
+    <div class="fade grid grid-cols-2 lg:grid-cols-4 gap-4 bg-surface/20 border border-white/10 rounded-2xl p-8 mb-12 shadow-md">
+      <div class="text-center md:border-r md:border-white/5">
+        <div class="font-mono text-4xl sm:text-5xl font-bold text-white tracking-tight" data-target="15" data-suffix="+">0+</div>
+        <div class="font-mono text-[9px] text-textMuted uppercase tracking-wider mt-2">Venture-backed & Shark Tank Brands</div>
+      </div>
+      <div class="text-center md:border-r md:border-white/5">
+        <div class="font-mono text-4xl sm:text-5xl font-bold text-white tracking-tight" data-target="40" data-prefix="$" data-suffix="Mn+">$0Mn+</div>
+        <div class="font-mono text-[9px] text-textMuted uppercase tracking-wider mt-2">Annual Revenue Managed</div>
+      </div>
+      <div class="text-center md:border-r md:border-white/5">
+        <div class="font-mono text-4xl sm:text-5xl font-bold text-white tracking-tight" data-target="24" data-prefix="$" data-suffix="Mn+">$0Mn+</div>
+        <div class="font-mono text-[9px] text-textMuted uppercase tracking-wider mt-2">Capital Raised</div>
+      </div>
+      <div class="text-center">
+        <div class="font-mono text-4xl sm:text-5xl font-bold text-white tracking-tight" data-target="7" data-suffix="+">0+</div>
+        <div class="font-mono text-[9px] text-textMuted uppercase tracking-wider mt-2">VC Fund Relationships</div>
+      </div>
+    </div>
+    
+    <!-- Partnerships lists -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono">
+      
+      <div class="fade bg-surface/30 border border-white/5 rounded-2xl p-8">
+        <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Aligned Venture Capital Backing</div>
+        <div class="space-y-3 font-mono text-xs text-white">
+          <div class="flex justify-between items-center"><span class="font-bold">DSG Consumer Partners</span><span class="text-accentBlue font-semibold">PARTNER FUND</span></div>
+          <div class="flex justify-between items-center"><span class="font-bold">Saama Capital</span><span class="text-accentBlue font-semibold">PARTNER FUND</span></div>
+          <div class="flex justify-between items-center"><span class="text-textMuted">GVFL Limited</span><span>Portfolio access</span></div>
+          <div class="flex justify-between items-center"><span class="text-textMuted">Fluid Ventures</span><span>Portfolio access</span></div>
+          <div class="flex justify-between items-center"><span class="text-textMuted">We Founder Circle</span><span>Co-investment portal</span></div>
+        </div>
+      </div>
+
+      <div class="fade bg-surface/30 border border-white/5 rounded-2xl p-8">
+        <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Representative D2C Portfolios</div>
+        <div class="space-y-3 font-mono text-xs text-white">
+          <div class="flex justify-between items-center"><span class="font-bold">Flo Sleep Solutions</span><span class="text-accentBlue font-semibold">D2C BRAND</span></div>
+          <div class="flex justify-between items-center"><span class="font-bold">Mr. Makhana</span><span class="text-accentBlue font-semibold">FMCG BRAND</span></div>
+          <div class="flex justify-between items-center"><span class="text-textMuted">Koparo Clean</span><span>Home Care Brand</span></div>
+          <div class="flex justify-between items-center"><span class="text-textMuted">Polka Tots</span><span>Baby Care Brand</span></div>
+          <div class="flex justify-between items-center"><span class="text-textMuted font-serif italic text-[11px]">Shark Tank India Alumni in Portfolio</span><span>✓</span></div>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ THE STACK DEFENSIBILITY & MOATS ═══ -->
+  <section class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="fade text-center max-w-2xl mx-auto mb-16">
+      <span class="font-mono text-[10px] text-accentBlue font-semibold uppercase tracking-widest block mb-4">Defensibility</span>
+      <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-4">
+        What makes Colonel defensible at scale.
+      </h2>
+      <p class="text-sm text-textMuted leading-relaxed">
+        Defensibility is not built into minor feature sets — it is locked into foundational architectural decisions made on day one.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="fade bg-surface/30 border border-white/5 hover:border-white/10 rounded-2xl p-8 relative overflow-hidden transition-all group">
+        <!-- Floating index number -->
+        <div class="absolute -bottom-8 -right-4 font-mono text-8xl font-black text-white/5 select-none pointer-events-none group-hover:text-accentBlue/5 transition-all">01</div>
+        <div class="font-mono text-[10px] text-accentBlue uppercase tracking-wider mb-6">01 · Compounding Insights</div>
+        <h3 class="text-base font-bold text-white mb-3">Finance Data Network Effects</h3>
+        <p class="text-xs text-textMuted leading-relaxed">
+          Every new brand integrated into the central data hub strengthens structural analytics benchmarking. Real-time portfolio analysis offers immediate optimization advice no competitor can reproduce.
+        </p>
+      </div>
+
+      <div class="fade bg-surface/30 border border-white/5 hover:border-white/10 rounded-2xl p-8 relative overflow-hidden transition-all group">
+        <!-- Floating index number -->
+        <div class="absolute -bottom-8 -right-4 font-mono text-8xl font-black text-white/5 select-none pointer-events-none group-hover:text-accentBlue/5 transition-all">02</div>
+        <div class="font-mono text-[10px] text-accentBlue uppercase tracking-wider mb-6">02 · Localized Adaptation</div>
+        <h3 class="text-base font-bold text-white mb-3">India-Native Accounting Stack</h3>
+        <p class="text-xs text-textMuted leading-relaxed">
+          Engineered explicitly for active Indian financial frameworks: multi-state GSTR matching, TCS taxation pipelines, and localized bank settlements. No generic western template fits this market model.
+        </p>
+      </div>
+
+      <div class="fade bg-surface/30 border border-white/5 hover:border-white/10 rounded-2xl p-8 relative overflow-hidden transition-all group">
+        <!-- Floating index number -->
+        <div class="absolute -bottom-8 -right-4 font-mono text-8xl font-black text-white/5 select-none pointer-events-none group-hover:text-accentBlue/5 transition-all">03</div>
+        <div class="font-mono text-[10px] text-accentBlue uppercase tracking-wider mb-6">03 · Technical Autonomy</div>
+        <h3 class="text-base font-bold text-white mb-3">Proprietary Ingestion Logic</h3>
+        <p class="text-xs text-textMuted leading-relaxed">
+          We maintain full architectural ownership over our transaction pipelines, parsing libraries, and n8n models. We bypass third-party middle-layer components to guarantee data speed and security.
+        </p>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ FOUNDERS STACK ═══ -->
+  <section id="team" class="py-24 max-w-7xl mx-auto px-6 border-b border-white/5">
+    <div class="fade text-left mb-16">
+      <span class="font-mono text-[10px] text-accentBlue font-semibold uppercase tracking-widest block mb-4">The Architects</span>
+      <h2 class="font-serif text-3xl sm:text-4xl font-normal leading-tight text-white mb-4">
+        Built by operators who lived the exact problem.
+      </h2>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Founder 1 -->
+      <div class="fade bg-surface/30 border border-white/5 rounded-2xl p-8 flex flex-col justify-between hover:border-white/10 transition-all">
+        <div>
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h3 class="font-serif text-xl font-bold text-white">Anshul Ajmera</h3>
+              <div class="font-mono text-[9px] text-accentBlue uppercase tracking-widest mt-1">Founder & CEO</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-successGreen animate-pulse"></span>
+          </div>
+          <p class="text-xs sm:text-sm text-textMuted leading-relaxed mb-6">
+            B.Com (Hons) with over 15+ years of active D2C enterprise leadership. Created Colonel Universe to address identical financial operational friction points he experienced firsthand while scaling Indian consumer brands.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="font-mono text-[9px] bg-white/5 border border-white/10 text-white px-2 py-0.5 rounded">Corporate Strategy</span>
+          <span class="font-mono text-[9px] bg-white/5 border border-white/10 text-white px-2 py-0.5 rounded">Business Dev</span>
+          <span class="font-mono text-[9px] bg-accentBlue/10 border border-accentBlue/20 text-accentBlue px-2 py-0.5 rounded">System Design</span>
+        </div>
+      </div>
+
+      <!-- Founder 2 -->
+      <div class="fade bg-surface/30 border border-white/5 rounded-2xl p-8 flex flex-col justify-between hover:border-white/10 transition-all">
+        <div>
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h3 class="font-serif text-xl font-bold text-white">CA Ankit Ajmera</h3>
+              <div class="font-mono text-[9px] text-accentBlue uppercase tracking-widest mt-1">CFO for 15+ D2C Brands</div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-successGreen animate-pulse"></span>
+          </div>
+          <p class="text-xs sm:text-sm text-textMuted leading-relaxed mb-6">
+            Qualified Chartered Accountant (Batch of 2015). Managed and advised capital raising cycles exceeding $24Mn+. Designed the complete localized audit ledger configurations and compliance automation sequences running inside our agent pipelines.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="font-mono text-[9px] bg-white/5 border border-white/10 text-white px-2 py-0.5 rounded">Financial Compliance</span>
+          <span class="font-mono text-[9px] bg-white/5 border border-white/10 text-white px-2 py-0.5 rounded">CA Governance</span>
+          <span class="font-mono text-[9px] bg-accentBlue/10 border border-accentBlue/20 text-accentBlue px-2 py-0.5 rounded">Advisory Models</span>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- ═══ CALL TO ACTION ═══ -->
+  <section class="py-32 relative overflow-hidden border-b border-white/5">
+    <!-- Radial mesh background highlight glow -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(37,99,235,0.06)_0%,transparent_60%)] pointer-events-none"></div>
+    
+    <div class="max-w-4xl mx-auto px-6 text-center relative z-10 space-y-8">
+      <span class="font-mono text-[10px] text-accentBlue uppercase tracking-widest block fade">colonel.finance · A Colonel Consultancy LLP firm</span>
+      <h2 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.1] text-white fade">
+        Every high-growth Indian brand deserves CFO-grade infrastructure.
+      </h2>
+      <h3 class="font-serif text-3xl sm:text-4xl text-textMuted italic fade">
+        We built it.
+      </h3>
+      
+      <div class="flex flex-wrap items-center justify-center gap-4 pt-6 fade">
+        <a href="mailto:hello@colonel.finance" class="font-mono text-[11px] font-bold text-[#0d1117] bg-white hover:bg-neutral-100 px-8 py-4 rounded-xl transition-all transform hover:-translate-y-0.5">
+          Partner with Colonel
+        </a>
+        <a href="https://aicfo.finance" class="font-mono text-[11px] font-semibold text-white border border-white/15 hover:border-white/30 px-8 py-4 rounded-xl transition-all transform hover:-translate-y-0.5">
+          Visit aicfo.finance →
+        </a>
+      </div>
+      
+      <div class="flex flex-wrap items-center justify-center gap-6 font-mono text-[9.5px] text-textMuted/40 pt-12 fade">
+        <span>agent.accountant</span>
+        <span>·</span>
+        <span>aicfo.finance</span>
+        <span>·</span>
+        <span>aichartered.accountant</span>
+        <span>·</span>
+        <span>colonel.finance</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="py-12 bg-background border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <span class="font-grotesk text-base font-bold text-white">Colonel</span>
+        <span class="font-mono text-[8px] bg-white/5 text-textMuted border border-white/10 px-2 py-0.5 rounded tracking-widest uppercase">2026 Edition</span>
+      </div>
+      
+      <div class="font-mono text-[9px] text-textMuted/40 tracking-wider uppercase text-center">
+        Confidential — Google for Startups Immersion 2026 Application
+      </div>
+      
+      <div class="font-mono text-[10px] text-textMuted/40">
+        © 2026 Colonel Universe. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  </div><!-- End Page Wrapper -->
+
+  <!-- ═══ SCRIPTS IMPLEMENTATION ═══ -->
+  <script>
+    // ── Intersection Observer for Scroll Reveals ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('on');
+          // Once elements are loaded, animate numbers inside them
+          entry.target.querySelectorAll('[data-target]').forEach(animateCounter);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.15
+    });
+
+    document.querySelectorAll('.fade').forEach(el => observer.observe(el));
+
+    // ── Numeric Count-Up Animation script ──
+    function animateCounter(el) {
+      const targetVal = parseFloat(el.dataset.target);
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      let current = 0;
+      const duration = 1600; // ms
+      const intervalTime = 16; // ~60fps
+      const steps = duration / intervalTime;
+      const stepVal = targetVal / steps;
+      
+      const timer = setInterval(() => {
+        current += stepVal;
+        if (current >= targetVal) {
+          clearInterval(timer);
+          el.textContent = prefix + targetVal + suffix;
+        } else {
+          el.textContent = prefix + Math.floor(current) + suffix;
+        }
+      }, intervalTime);
+    }
+
+    // ── Real-Time Dynamic Event Log Ingest prepender ──
+    const operationalLogs = [
+      { color: 'bg-successGreen', type: 'SYS', msg: 'Flipkart settlement file parsed: 1,840 ledger entries matches', tag: 'ltg-s', txt: 'SUCCESS' },
+      { color: 'bg-successGreen', type: 'MKR', msg: 'GSTR-3B auto-generated: tax payload compiled for 29 states', tag: 'ltg-r', txt: 'COMPILED' },
+      { color: 'bg-accentBlue', type: 'CHK', msg: 'Vendor AP batch approved: ₹8.4L payments posted directly to ERP', tag: 'ltg-a', txt: 'APPROVED' },
+      { color: 'bg-alertAmber', type: 'MKR', msg: 'Razorpay fee exception detected: ₹480 processing mismatch', tag: 'ltg-p', txt: 'TRIAGE' },
+      { color: 'bg-successGreen', type: 'SYS', msg: 'Shopify payouts reconciled: matched settlements vs HDFC statement', tag: 'ltg-s', txt: 'SUCCESS' },
+      { color: 'bg-successGreen', type: 'SYS', msg: 'Tally prime sync completed: zero anomalies across general accounts', tag: 'ltg-s', txt: 'SUCCESS' },
+      { color: 'bg-alertAmber', type: 'CHK', msg: 'COD return audit paused: awaiting checker verification for ORD-89211', tag: 'ltg-p', txt: 'AWAITING' }
+    ];
+    
+    let logIdx = 0;
+    function generateTimestamp() {
+      const date = new Date();
+      return `[${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}]`;
+    }
+
+    setInterval(() => {
+      const logsBox = document.getElementById('live-logs-container');
+      const isOverviewActive = document.getElementById('view-overview');
+      
+      if (!logsBox || !isOverviewActive || isOverviewActive.style.display === 'none') return;
+      
+      // Get log pattern
+      const data = operationalLogs[logIdx % operationalLogs.length];
+      logIdx++;
+      
+      const newLog = document.createElement('div');
+      newLog.className = 'log-e flex items-start gap-2';
+      newLog.innerHTML = `<span class="w-1 h-1 rounded-full ${data.color} mt-1"></span><span class="text-textMuted">${generateTimestamp()}</span><span class="text-white">${data.msg}</span>`;
+      
+      logsBox.insertBefore(newLog, logsBox.firstChild);
+      
+      // Maintain exactly 5 logs to prevent spill
+      if (logsBox.children.length > 5) {
+        logsBox.removeChild(logsBox.lastChild);
+      }
+    }, 4000);
+
+    // ── Tab Controller for the Live CFO Console ──
+    function switchDashboardTab(tabName) {
+      const contentArea = document.getElementById('dashboard-content');
+      if (!contentArea) return;
+      
+      // Reset active tab button states
+      const tabButtons = ['overview', 'reconciliation', 'gst'];
+      tabButtons.forEach(btnName => {
+        const btn = document.getElementById('tb-' + btnName);
+        if (!btn) return;
+        if (btnName === tabName) {
+          btn.className = 'flex-1 py-3 font-mono text-[10px] font-semibold uppercase tracking-wider text-accentBlue border-b-2 border-accentBlue text-center transition-all select-none';
+        } else {
+          btn.className = 'flex-1 py-3 font-mono text-[10px] font-semibold uppercase tracking-wider text-textMuted hover:text-white text-center transition-all select-none';
+        }
+      });
+      
+      // Swap content structures
+      if (tabName === 'overview') {
+        contentArea.innerHTML = `
+          <div id="view-overview" class="space-y-6">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 border-b border-white/5 pb-6">
+              <div>
+                <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">Revenue</div>
+                <div class="font-mono text-base font-bold text-white mt-1">₹2.41 Cr</div>
+                <div class="font-mono text-[8.5px] text-successGreen mt-1">▲ 12.4% MoM</div>
+              </div>
+              <div>
+                <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">GP Margin</div>
+                <div class="font-mono text-base font-bold text-white mt-1">43.7%</div>
+                <div class="font-mono text-[8.5px] text-red-400 mt-1">▼ 2.1% cost</div>
+              </div>
+              <div>
+                <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">Cash Runway</div>
+                <div class="font-mono text-base font-bold text-white mt-1">8.4 Months</div>
+                <div class="font-mono text-[8.5px] text-textMuted mt-1">STABLE</div>
+              </div>
+              <div>
+                <div class="font-mono text-[8px] text-textMuted uppercase tracking-widest">CAC Blended</div>
+                <div class="font-mono text-base font-bold text-white mt-1">₹1,240</div>
+                <div class="font-mono text-[8.5px] text-successGreen mt-1">▲ Optimised</div>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="md:col-span-2 space-y-2">
+                <div class="font-mono text-[8.5px] text-textMuted uppercase tracking-widest">P&L Net Profit Trend (Oct - Mar)</div>
+                <div class="w-full h-32 relative bg-background/50 border border-white/5 rounded-lg p-2 flex items-center justify-center">
+                  <svg class="w-full h-full" viewBox="0 0 320 80" fill="none">
+                    <line x1="0" y1="64" x2="320" y2="64" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+                    <line x1="0" y1="40" x2="320" y2="40" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+                    <line x1="0" y1="16" x2="320" y2="16" stroke="rgba(255,255,255,0.03)" stroke-width="1"></line>
+                    <path d="M 0 70 Q 40 50, 80 58 T 160 30 T 240 45 T 320 18 L 320 80 L 0 80 Z" fill="rgba(59,130,246,0.08)"></path>
+                    <path class="ch-path drawn" id="dashboard-trend" d="M 0 70 Q 40 50, 80 58 T 160 30 T 240 45 T 320 18" stroke="#3b82f6" stroke-width="1.8" fill="none"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div class="font-mono text-[8.5px] text-textMuted uppercase tracking-widest flex items-center justify-between">
+                  <span>Active System Logs</span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-successGreen animate-pulse"></span>
+                </div>
+                <div id="live-logs-container" class="bg-background/80 border border-white/5 rounded-lg p-3 h-32 overflow-hidden space-y-2.5 font-mono text-[8.5px]">
+                  <div class="log-e flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-successGreen mt-1"></span><span class="text-textMuted">${generateTimestamp()}</span><span class="text-white">Shopify orders sync: 12,050 rows reconciled</span></div>
+                  <div class="log-e flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-successGreen mt-1"></span><span class="text-textMuted">${generateTimestamp()}</span><span class="text-white">Amazon payout credit verified at ICICI</span></div>
+                  <div class="log-e flex items-start gap-2"><span class="w-1 h-1 rounded-full bg-alertAmber mt-1"></span><span class="text-textMuted">${generateTimestamp()}</span><span class="text-white">TDS deviation detected: Razorpay 1% validation</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        // Trigger sparkline draw path reveal
+        setTimeout(() => {
+          document.getElementById('dashboard-trend')?.classList.add('drawn');
+        }, 100);
+      } 
+      
+      else if (tabName === 'reconciliation') {
+        contentArea.innerHTML = `
+          <div id="view-reconciliation" class="space-y-4">
+            <div class="font-mono text-[9px] text-textMuted uppercase tracking-widest">3-Way Reconciliation Run Summary (Last 24 Hours)</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="bg-background/50 border border-white/5 rounded-lg p-4 text-center">
+                <div class="font-mono text-2xl font-bold text-successGreen">1,398</div>
+                <div class="font-mono text-[8px] text-textMuted uppercase mt-1">Matched</div>
+              </div>
+              <div class="bg-background/50 border border-white/5 rounded-lg p-4 text-center">
+                <div class="font-mono text-2xl font-bold text-alertAmber">4</div>
+                <div class="font-mono text-[8px] text-textMuted uppercase mt-1">Exceptions</div>
+              </div>
+              <div class="bg-background/50 border border-white/5 rounded-lg p-4 text-center">
+                <div class="font-mono text-2xl font-bold text-accentBlue">99.7%</div>
+                <div class="font-mono text-[8px] text-textMuted uppercase mt-1">Accuracy</div>
+              </div>
+            </div>
+            
+            <div class="overflow-x-auto w-full">
+              <div class="bg-background/80 border border-white/5 rounded-xl overflow-hidden font-mono text-[9px] min-w-[450px]">
+                <table class="w-full text-left">
+                  <thead>
+                    <tr class="border-b border-white/5 text-textMuted text-[8px] bg-white/5">
+                      <th class="py-2.5 px-4 font-semibold">Txn ID</th>
+                      <th class="py-2.5 px-4 font-semibold">Source</th>
+                      <th class="py-2.5 px-4 font-semibold">Gateway</th>
+                      <th class="py-2.5 px-4 font-semibold text-right">Amount</th>
+                      <th class="py-2.5 px-4 font-semibold text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-white/5">
+                    <tr>
+                      <td class="py-2.5 px-4 font-bold text-white">TXN_4920</td>
+                      <td class="py-2.5 px-4">Stripe Ingestion</td>
+                      <td class="py-2.5 px-4">Razorpay</td>
+                      <td class="py-2.5 px-4 text-right text-white">₹12,450.00</td>
+                      <td class="py-2.5 px-4 text-right"><span class="text-successGreen font-bold bg-successGreen/10 px-2 py-0.5 rounded text-[8px] border border-successGreen/20">MATCHED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="py-2.5 px-4 font-bold text-white">TXN_4921</td>
+                      <td class="py-2.5 px-4">Mercury Ingest</td>
+                      <td class="py-2.5 px-4">PayU</td>
+                      <td class="py-2.5 px-4 text-right text-white">₹54,000.00</td>
+                      <td class="py-2.5 px-4 text-right"><span class="text-alertAmber font-bold bg-alertAmber/10 px-2 py-0.5 rounded text-[8px] border border-alertAmber/20">AWAITING</span></td>
+                    </tr>
+                    <tr>
+                      <td class="py-2.5 px-4 font-bold text-white">TXN_4922</td>
+                      <td class="py-2.5 px-4">Unknown App</td>
+                      <td class="py-2.5 px-4">Bank ledger</td>
+                      <td class="py-2.5 px-4 text-right text-white">₹3,500.00</td>
+                      <td class="py-2.5 px-4 text-right"><span class="text-red-400 font-bold bg-red-400/10 px-2 py-0.5 rounded text-[8px] border border-red-400/20">DEVIATION</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      } 
+      
+      else if (tabName === 'gst') {
+        contentArea.innerHTML = `
+          <div id="view-gst" class="space-y-4">
+            <div class="font-mono text-[9px] text-textMuted uppercase tracking-widest">Active GST Compliance Ledger (29 States)</div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Upload block -->
+              <div class="border border-dashed border-white/10 hover:border-accentBlue/30 rounded-xl p-6 flex flex-col items-center justify-center text-center transition-all bg-background/30">
+                <svg class="w-8 h-8 text-accentBlue mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+                <div class="font-mono text-[10px] font-bold text-white mb-1">Drag and Drop GST Ingest File</div>
+                <div class="font-mono text-[8px] text-textMuted leading-relaxed max-w-[180px] mb-4">Upload raw files to auto-map GSTR sequences.</div>
+                <button class="bg-accentBlue font-mono text-[9px] font-bold text-white px-4 py-2 rounded border border-accentBlue/50 hover:bg-accentBlue/80 active:scale-95 transition-all">Start Automapping</button>
+              </div>
+              
+              <!-- Filing updates -->
+              <div class="space-y-3 font-mono text-[9.5px]">
+                <div class="bg-background/50 border border-white/5 rounded-lg p-3 flex justify-between items-center">
+                  <div>
+                    <div class="text-white font-bold">GSTR-1 Preparation</div>
+                    <div class="text-[8px] text-textMuted mt-1">Filed on May 11, 2026</div>
+                  </div>
+                  <span class="text-successGreen font-bold bg-successGreen/10 border border-successGreen/20 px-2 py-0.5 rounded text-[8px]">FILED</span>
+                </div>
+                
+                <div class="bg-background/50 border border-white/5 rounded-lg p-3 flex justify-between items-center">
+                  <div>
+                    <div class="text-white font-bold">GSTR-3B Settlement</div>
+                    <div class="text-[8px] text-textMuted mt-1">Tax liability computed: ₹12,840</div>
+                  </div>
+                  <span class="text-successGreen font-bold bg-successGreen/10 border border-successGreen/20 px-2 py-0.5 rounded text-[8px]">FILED</span>
+                </div>
+
+                <div class="bg-background/50 border border-white/5 rounded-lg p-3 flex justify-between items-center">
+                  <div>
+                    <div class="text-white font-bold">GSTR-9 Annual Return</div>
+                    <div class="text-[8px] text-textMuted mt-1">Due Dec 31, 2026 (Data compiled)</div>
+                  </div>
+                  <span class="text-alertAmber font-bold bg-alertAmber/10 border border-alertAmber/20 px-2 py-0.5 rounded text-[8px]">PREP</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // ── Mobile Menu Logic ──
+    function toggleMobileMenu() {
+      const overlay = document.getElementById('mobile-nav-overlay');
+      if (!overlay) return;
+      overlay.classList.toggle('active');
+    }
+
+    // ── Theme State Logic ──
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+      
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        updateThemeIcons(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        updateThemeIcons(false);
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+        updateThemeIcons(false);
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        updateThemeIcons(true);
+      }
+    }
+
+    function updateThemeIcons(isDark) {
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+      if (!sunIcon || !moonIcon) return;
+      
+      if (isDark) {
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+      } else {
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+      }
+    }
+
+    // ── CFO Pipeline tab switcher ──
+    let activePipelineStep = 'connecting';
+
+    function switchPipelineStep(stepName) {
+      activePipelineStep = stepName;
+      // Toggle canvas steps visibility
+      const steps = ['connecting', 'interworking', 'actioning'];
+      steps.forEach(step => {
+        const stepDiv = document.getElementById('cstep-' + step);
+        if (stepDiv) {
+          if (step === stepName) {
+            stepDiv.classList.remove('hidden');
+            stepDiv.classList.add('cstep-active');
+          } else {
+            stepDiv.classList.add('hidden');
+            stepDiv.classList.remove('cstep-active');
+          }
+        }
+      });
+      
+      let colorHex = '#3b82f6';
+      let shadowRGB = '59, 130, 246';
+      let borderClass = 'border-[#3b82f6]/30';
+      let shadowClass = 'shadow-[0_0_12px_rgba(59,130,246,0.05)]';
+      let dotClass = 'bg-[#3b82f6]/10 border-[#3b82f6]/30 text-[#3b82f6]';
+      
+      if (stepName === 'connecting') {
+        colorHex = '#3b82f6';
+        shadowRGB = '59, 130, 246';
+        borderClass = 'border-[#3b82f6]/30';
+        shadowClass = 'shadow-[0_0_12px_rgba(59,130,246,0.05)]';
+        dotClass = 'bg-[#3b82f6]/10 border-[#3b82f6]/30 text-[#3b82f6]';
+      } else if (stepName === 'interworking') {
+        colorHex = '#8b5cf6';
+        shadowRGB = '139, 92, 246';
+        borderClass = 'border-[#8b5cf6]/30';
+        shadowClass = 'shadow-[0_0_12px_rgba(139,92,246,0.05)]';
+        dotClass = 'bg-[#8b5cf6]/10 border-[#8b5cf6]/30 text-[#8b5cf6]';
+      } else if (stepName === 'actioning') {
+        colorHex = '#10b981';
+        shadowRGB = '16, 185, 129';
+        borderClass = 'border-[#10b981]/30';
+        shadowClass = 'shadow-[0_0_12px_rgba(16,185,129,0.05)]';
+        dotClass = 'bg-[#10b981]/10 border-[#10b981]/30 text-[#10b981]';
+      }
+      
+      // Update vertical tab button styles
+      steps.forEach(step => {
+        const btn = document.getElementById('pbtn-' + step);
+        const head = document.getElementById('phead-' + step);
+        if (!btn || !head) return;
+        
+        const dot = btn.querySelector('.rounded-full');
+        
+        if (step === stepName) {
+          // Active state
+          btn.className = `w-full text-left p-4 rounded-xl border transition-all flex items-start gap-4 select-none bg-surface/80 ${borderClass} ${shadowClass}`;
+          head.className = "text-sm font-bold text-white transition-colors";
+          if (dot) {
+            dot.className = `w-5 h-5 rounded-full ${dotClass} flex items-center justify-center font-mono text-[10px] font-bold shrink-0 mt-0.5 animate-pulse`;
+          }
+        } else {
+          // Inactive state
+          btn.className = "w-full text-left p-4 rounded-xl border border-white/5 hover:border-white/10 hover:bg-white/5 transition-all flex items-start gap-4 select-none bg-transparent";
+          head.className = "text-sm font-bold text-textMuted transition-colors";
+          if (dot) {
+            dot.className = "w-5 h-5 rounded-full bg-white/5 border border-white/10 text-textMuted flex items-center justify-center font-mono text-[10px] font-bold shrink-0 mt-0.5";
+          }
+        }
+      });
+      
+      // Reposition track and puck
+      repositionTrackAndPuck();
+      
+      // Update custom style parameters on track, puck, dots, and glow
+      const puck = document.getElementById('sliding-train-puck');
+      const activeTrack = document.getElementById('pipeline-active-track');
+      if (puck && activeTrack) {
+        activeTrack.style.backgroundColor = colorHex;
+        puck.style.borderColor = colorHex;
+        puck.style.boxShadow = `0 0 15px rgba(${shadowRGB}, 0.5)`;
+        
+        const dots = puck.querySelectorAll('.train-dot');
+        if (dots.length >= 3) {
+          dots[0].style.backgroundColor = `${colorHex}33`; // 20% opacity
+          dots[1].style.backgroundColor = colorHex;
+          dots[2].style.backgroundColor = `${colorHex}33`; // 20% opacity
+        }
+      }
+      
+      const canvasGlow = document.getElementById('pipeline-canvas-glow');
+      if (canvasGlow) {
+        canvasGlow.style.backgroundColor = `${colorHex}0d`; // 5% opacity
+      }
+    }
+    
+    function repositionTrackAndPuck() {
+      const activeBtn = document.getElementById('pbtn-' + activePipelineStep);
+      const puck = document.getElementById('sliding-train-puck');
+      const activeTrack = document.getElementById('pipeline-active-track');
+      
+      if (activeBtn && puck && activeTrack) {
+        const offsetTop = activeBtn.offsetTop;
+        const offsetHeight = activeBtn.offsetHeight;
+        const puckHeight = puck.offsetHeight || 40;
+        
+        const translateVal = offsetTop + (offsetHeight / 2) - (puckHeight / 2);
+        puck.style.transform = `translateY(${translateVal}px)`;
+        
+        const trackHeight = offsetTop + (offsetHeight / 2);
+        activeTrack.style.height = `${trackHeight}px`;
+      }
+    }
+    
+    window.addEventListener('resize', repositionTrackAndPuck);
+
+    // ── Self-Typing JSON terminal simulator for Slide 2 ──
+    const typewriterLogs = [
+`{
+  "event": "shopify_payout_matched",
+  "payout_id": "po_89f029",
+  "amount_inr": 124590.00,
+  "bank_status": "CREDITED",
+  "n8n_flow": "3way_match_completed",
+  "compliance": "SHA-256_HASHED"
+}`,
+`{
+  "event": "gst_liability_compiled",
+  "state": "Maharashtra (27)",
+  "tax_sgst": 6420.00,
+  "tax_cgst": 6420.00,
+  "state_match": "COMPLIANT",
+  "filing_queue": "PUSHED"
+}`,
+`{
+  "event": "amazon_recon_anomaly",
+  "order_id": "402-9840-9240",
+  "reconciled_amt": 1280.00,
+  "settled_amt": 800.00,
+  "fee_deviation": 480.00,
+  "checker_flag": "TRUE"
+}`
+    ];
+    
+    let currentLogIdx = 0;
+    let currentCharIdx = 0;
+    let typewriterTimeout = null;
+
+    function startTerminalPrint() {
+      const container = document.getElementById('typewriter-log-content');
+      if (!container) return;
+      
+      const currentLog = typewriterLogs[currentLogIdx % typewriterLogs.length];
+      
+      if (currentCharIdx < currentLog.length) {
+        container.textContent = currentLog.substring(0, currentCharIdx + 1) + '█';
+        currentCharIdx++;
+        typewriterTimeout = setTimeout(startTerminalPrint, 18);
+      } else {
+        // Log typing completed, remove cursor and schedule next log
+        container.textContent = currentLog;
+        typewriterTimeout = setTimeout(() => {
+          currentCharIdx = 0;
+          currentLogIdx++;
+          startTerminalPrint();
+        }, 3000);
+      }
+    }
+
+    // Initialize everything on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      switchPipelineStep('connecting');
+      startTerminalPrint();
+    });
+  </script>
+
+</body>
+</html>
