@@ -181,6 +181,15 @@
       background-color: rgba(0, 0, 0, 0.03) !important;
     }
 
+    /* Light Mode Navbar Hover states - ensure absolute contrast on hover */
+    html:not(.dark) nav a:hover,
+    html:not(.dark) nav button:hover {
+      color: #0f172a !important;
+    }
+    html:not(.dark) nav button:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+
     /* Explicitly make all headings, serifs, and grotesks pure white in dark mode/always-dark elements */
     html.dark h1,
     html.dark h2,
