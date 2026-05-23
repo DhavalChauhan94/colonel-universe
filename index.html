@@ -1803,56 +1803,103 @@
       </p>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Beautiful Branching Organization Chart Layout -->
+    <div class="relative max-w-5xl mx-auto flex flex-col items-center gap-16 mt-12">
       
-      <!-- Domain 1 -->
-      <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
-        <div>
-          <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Parent Domain</div>
-          <h3 class="font-mono text-base font-bold text-white mb-3">colonel.finance</h3>
-          <p class="text-xs text-textMuted leading-relaxed mb-6">
-            The institutional foundation. Holding relationships with leading VC funds and Shark Tank India portfolio operators.
-          </p>
+      <!-- Top Level: Parent Domain (colonel.finance) -->
+      <div class="w-full max-w-sm z-10 fade">
+        <div class="bg-[#161b27] border border-accentBlue/20 hover:border-accentBlue/40 rounded-2xl p-6 transition-all group flex flex-col justify-between shadow-[0_4px_24px_rgba(59,130,246,0.05)] always-dark">
+          <div>
+            <div class="flex justify-between items-center mb-6">
+              <span class="font-mono text-[10px] text-accentBlue uppercase tracking-widest font-bold">The Firm · Parent Brand</span>
+              <span class="w-2 h-2 rounded-full bg-accentBlue animate-pulse"></span>
+            </div>
+            <h3 class="font-mono text-base font-bold text-white mb-3">colonel.finance</h3>
+            <p class="text-xs text-textMuted leading-relaxed mb-6">
+              The institutional foundation. Holding relationships with leading VC funds and Shark Tank India portfolio operators.
+            </p>
+          </div>
+          <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Credentials Layer</div>
         </div>
-        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Credentials Layer</div>
-      </div>
-      
-      <!-- Domain 2 -->
-      <div class="fade bg-surface/30 border border-accentBlue/20 hover:border-accentBlue/50 rounded-2xl p-6 transition-all group flex flex-col justify-between shadow-[0_4px_24px_rgba(59,130,246,0.05)]">
-        <div>
-          <div class="font-mono text-[10px] text-accentBlue uppercase tracking-widest mb-6">Core Engine</div>
-          <h3 class="font-mono text-base font-bold text-accentBlue mb-3">agent.accountant</h3>
-          <p class="text-xs text-textMuted leading-relaxed mb-6">
-            An autonomous data processing and reconciliation engine. Human accountants use our agent infrastructure to improve operational efficiency by 10x. Clean, validated data is then fed directly to AI CFO for strategic analysis and AI CA for compliance execution.
-          </p>
-        </div>
-        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Data Processing &amp; Reconciliation Engine</div>
       </div>
 
-      <!-- Domain 3 -->
-      <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
-        <div>
-          <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">CFO Layer</div>
-          <h3 class="font-mono text-base font-bold text-white mb-3">aicfo.finance</h3>
-          <p class="text-xs text-textMuted leading-relaxed mb-6">
-             Outsourced CFO capabilities. Integrates real-time daily operational cash flow insights with strategic fundraising diligence prep.
-          </p>
-        </div>
-        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Advisory Layer</div>
+      <!-- Connector Lines (Only visible on lg screens) -->
+      <div class="hidden lg:block absolute inset-x-0 top-0 bottom-0 pointer-events-none z-0">
+        <!-- Main Stem Line dropping down from Parent Card -->
+        <div class="absolute left-1/2 -translate-x-1/2 top-[172px] w-px h-16 bg-gradient-to-b from-accentBlue/40 to-accentBlue/20"></div>
+        
+        <!-- Horizontal bridge bridging the three columns -->
+        <div class="absolute left-[16.67%] right-[16.67%] top-[236px] h-px bg-accentBlue/20"></div>
+        
+        <!-- Three vertical drop lines from bridge down to each of the three child cards -->
+        <div class="absolute left-[16.67%] top-[236px] w-px h-16 bg-accentBlue/20"></div>
+        <div class="absolute left-1/2 -translate-x-1/2 top-[236px] w-px h-16 bg-accentBlue/20"></div>
+        <div class="absolute right-[16.67%] top-[236px] w-px h-16 bg-accentBlue/20"></div>
       </div>
 
-      <!-- Domain 4 -->
-      <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
-        <div>
-          <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Compliance Layer</div>
-          <h3 class="font-mono text-base font-bold text-white mb-3">aichartered.accountant</h3>
-          <p class="text-xs text-textMuted leading-relaxed mb-6">
-             AI-native auditing workflows. GSTR filing automation, corporate filings with MCA, tax auditing compliance pipelines.
-          </p>
+      <!-- Bottom Row: Three Sub-domains -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full z-10">
+        
+        <!-- Child 1: agent.accountant -->
+        <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+          <div>
+            <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Core Engine</div>
+            <h3 class="font-mono text-base font-bold text-white mb-3">agent.accountant</h3>
+            <p class="text-xs text-textMuted leading-relaxed mb-6">
+              An autonomous data processing and reconciliation engine. Human accountants use our agent infrastructure to improve operational efficiency by 10x. Clean, validated data is then fed directly to AI CFO for strategic analysis and AI CA for compliance execution.
+            </p>
+          </div>
+          <div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-3">
+            <div class="font-mono text-[9px] text-[#fbbf24] font-semibold tracking-wider uppercase">
+              ★ Used by professional accountants themselves
+            </div>
+            <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Data Processing &amp; Reconciliation Engine</div>
+          </div>
         </div>
-        <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Chartered Accounting</div>
+
+        <!-- Child 2: aicfo.finance -->
+        <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+          <div>
+            <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">CFO Layer</div>
+            <h3 class="font-mono text-base font-bold text-white mb-3">aicfo.finance</h3>
+            <p class="text-xs text-textMuted leading-relaxed mb-6">
+              Outsourced CFO capabilities. Integrates real-time daily operational cash flow insights with strategic fundraising diligence prep.
+            </p>
+          </div>
+          <div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-3">
+            <div class="font-mono text-[9px] text-[#fbbf24] font-semibold tracking-wider uppercase">
+              ★ Used by professional CFOs themselves
+            </div>
+            <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Advisory Layer</div>
+          </div>
+        </div>
+
+        <!-- Child 3: aichartered.accountant -->
+        <div class="fade bg-surface/30 border border-white/5 hover:border-accentBlue/30 rounded-2xl p-6 transition-all group flex flex-col justify-between">
+          <div>
+            <div class="font-mono text-[10px] text-textMuted uppercase tracking-widest mb-6">Compliance Layer</div>
+            <h3 class="font-mono text-base font-bold text-white mb-3">aichartered.accountant</h3>
+            <p class="text-xs text-textMuted leading-relaxed mb-6">
+              AI-native auditing workflows. GSTR filing automation, corporate filings with MCA, tax auditing compliance pipelines.
+            </p>
+          </div>
+          <div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-3">
+            <div class="font-mono text-[9px] text-[#fbbf24] font-semibold tracking-wider uppercase">
+              ★ Used by professional CAs themselves
+            </div>
+            <div class="font-mono text-[9px] text-accentBlue group-hover:underline uppercase tracking-wider">Chartered Accounting</div>
+          </div>
+        </div>
+        
       </div>
       
+      <!-- Bottom Summary Note (reproduced from Thesis Deck) -->
+      <div class="fade text-center border-t border-white/5 pt-6 w-full">
+        <p class="font-serif italic text-sm text-textMuted">
+          Three products. One data backbone. <span class="text-white font-normal not-italic">One firm behind them all.</span>
+        </p>
+      </div>
+
     </div>
   </section>
 
