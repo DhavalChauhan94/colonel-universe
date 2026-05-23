@@ -838,19 +838,6 @@
   <div id="mobile-nav-overlay" class="fixed inset-0 z-50 bg-[#0d1117]/95 backdrop-blur-2xl flex flex-col justify-between p-6 md:hidden">
     <div class="flex items-center justify-between border-b border-white/5 pb-4">
       <a href="#" onclick="toggleMobileMenu()" class="flex items-center gap-3 group">
-        <!-- SVG Subway Train Brand Logo Capsule -->
-        <div class="relative w-16 h-8 overflow-hidden rounded-md border border-white/10 bg-white/5 flex items-center justify-center always-dark">
-          <svg class="w-full h-full" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#brand-logo-clip)">
-              <!-- Track -->
-              <line x1="0" y1="26" x2="100" y2="26" class="stroke-slate-700 dark:stroke-slate-800" stroke-width="1.5" stroke-dasharray="3 3" />
-              <!-- Train 1 -->
-              <use href="#brand-subway-train" id="brandTrainOneMobile" class="text-accentBlue animate-brand-train-1" />
-              <!-- Train 2 -->
-              <use href="#brand-subway-train" id="brandTrainTwoMobile" class="text-accentBlue animate-brand-train-2" />
-            </g>
-          </svg>
-        </div>
         <span class="font-grotesk text-lg font-bold text-white">Colonel Universe</span>
       </a>
       <button onclick="toggleMobileMenu()" class="w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 text-textMuted hover:text-white" aria-label="Close Mobile Menu">
@@ -881,19 +868,6 @@
   <nav class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5 transition-all">
     <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
       <a href="#" class="flex items-center gap-3 group">
-        <!-- SVG Subway Train Brand Logo Capsule -->
-        <div class="relative w-16 h-8 overflow-hidden rounded-md border border-white/10 bg-white/5 flex items-center justify-center always-dark">
-          <svg class="w-full h-full" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#brand-logo-clip)">
-              <!-- Track -->
-              <line x1="0" y1="26" x2="100" y2="26" class="stroke-slate-700 dark:stroke-slate-800" stroke-width="1.5" stroke-dasharray="3 3" />
-              <!-- Train 1 -->
-              <use href="#brand-subway-train" id="brandTrainOne" class="text-accentBlue animate-brand-train-1" />
-              <!-- Train 2 -->
-              <use href="#brand-subway-train" id="brandTrainTwo" class="text-accentBlue animate-brand-train-2" />
-            </g>
-          </svg>
-        </div>
         <span class="font-grotesk text-lg md:text-xl font-bold tracking-tight text-white group-hover:text-accentBlue transition-colors">Colonel Universe</span>
         <span class="hidden sm:inline-block font-mono text-[9px] bg-accentBlue/10 text-accentBlue px-2 py-0.5 rounded border border-accentBlue/25 tracking-widest uppercase">CFO INFRA</span>
       </a>
@@ -918,9 +892,7 @@
           </svg>
         </button>
 
-        <a href="mailto:hello@colonel.finance" class="font-mono text-[10px] sm:text-[11px] font-semibold text-white bg-white/5 hover:bg-white/10 px-3 py-2 sm:px-5 sm:py-2.5 rounded-lg border border-white/10 transition-all active:scale-95 shrink-0">
-          <span class="hidden sm:inline">Request Technical </span>Demo
-        </a>
+
 
         <!-- Mobile Menu Toggle Button -->
         <button id="mobile-menu-toggle" onclick="toggleMobileMenu()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-textMuted hover:text-white transition-all active:scale-95" aria-label="Toggle Mobile Menu">
@@ -947,9 +919,7 @@
             <span class="w-1.5 h-1.5 rounded-full bg-successGreen animate-pulse"></span>
             84 agents live
           </div>
-          <div class="inline-flex items-center bg-white/5 border border-white/10 rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-textMuted">
-            SOC 2
-          </div>
+
           <div class="inline-flex items-center bg-accentBlue/10 border border-accentBlue/20 rounded-full px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-accentBlue">
             agent.accountant
           </div>
